@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MR Tube – Admin Command Center</title>
+<style>
+:root{
+  --bg:#06060e;--surface:#0d0d1b;--card:#111122;--card2:#161628;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.13);
+  --red:#ff2244;--redL:#ff5577;--purple:#7c3aed;--purpleL:#a855f7;
+  --gold:#f59e0b;--goldL:#fbbf24;--neon:#00e5a0;--neonL:#33ffb8;
+  --blue:#3b82f6;--blueL:#60a5fa;--pink:#ec4899;--orange:#f97316;--cyan:#06b6d4;
+  --text:#eef2ff;--muted:#7880a0;--dim:#2d3154;
+  --g1:linear-gradient(135deg,#ff2244,#7c3aed);--g2:linear-gradient(135deg,#f59e0b,#ff2244);
+  --g3:linear-gradient(135deg,#00e5a0,#3b82f6);--g4:linear-gradient(135deg,#ec4899,#7c3aed);
+  --g5:linear-gradient(135deg,#f97316,#f59e0b);--g6:linear-gradient(135deg,#06b6d4,#3b82f6);
+  --gFull:linear-gradient(135deg,#ff2244 0%,#7c3aed 40%,#00e5a0 80%,#f59e0b 100%);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden}
+button{cursor:pointer;font-family:inherit}input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.lg-glow{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
+.lg-box{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:40px 34px;width:100%;max-width:450px;position:relative;z-index:1;box-shadow:0 40px 80px rgba(0,0,0,.6)}
+.lg-icon{width:58px;height:58px;background:var(--g1);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px}
+.lg-title{font-size:22px;font-weight:900;background:var(--gFull);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center}
+.lg-sub{font-size:12px;color:var(--muted);text-align:center;margin-top:4px;margin-bottom:18px}
+.lg-badge{display:table;margin:0 auto 18px;background:rgba(255,34,68,.15);border:1px solid rgba(255,34,68,.3);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:800;color:var(--red)}
+.f-lbl{font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px;letter-spacing:.7px}
+.f-inp{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s;margin-bottom:13px}
+.f-inp:focus{border-color:var(--purple)}
+.pw-wrap{position:relative;margin-bottom:13px}
+.pw-wrap .f-inp{margin-bottom:0;padding-right:44px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:16px}
+.lg-btn{width:100%;padding:13px;background:var(--g1);border:none;border-radius:12px;color:#fff;font-weight:800;font-size:15px;margin-top:4px}
+.lg-btn:hover{opacity:.9}
+.lg-err{background:rgba(255,34,68,.12);border:1px solid rgba(255,34,68,.3);border-radius:9px;padding:9px 14px;font-size:12px;color:var(--redL);margin-bottom:12px;display:none}
+.cred-box{background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:13px;margin-top:16px}
+.cred-box h4{font-size:10px;font-weight:800;color:var(--dim);letter-spacing:.8px;margin-bottom:9px}
+.cred-row{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background .15s;margin-bottom:3px}
+.cred-row:hover{background:rgba(255,255,255,.04)}
+.cred-role{font-size:12px;font-weight:700}
+.cred-email{font-size:11px;color:var(--muted);font-family:monospace}
+
+/* SHELL */
+#appShell{display:none}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.aside{width:252px;min-width:252px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow-y:auto;flex-shrink:0}
+.aside-top{padding:16px 14px 13px;border-bottom:1px solid var(--border)}
+.aside-brand{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.aside-brand .ic{width:34px;height:34px;background:var(--g1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.aside-brand .nm{font-size:16px;font-weight:900;background:var(--gFull);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.aside-brand .sb{font-size:10px;color:var(--muted)}
+.user-chip{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--card2);border-radius:11px;border:1px solid var(--border)}
+.uc-av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0}
+.uc-name{font-size:12px;font-weight:700}
+.uc-role{font-size:10px;margin-top:2px}
+.nav-sec{padding:7px 0}
+.nav-sec+.nav-sec{border-top:1px solid var(--border)}
+.nav-lbl{font-size:10px;font-weight:800;color:var(--dim);letter-spacing:1.2px;padding:6px 17px 3px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 12px;font-size:12.5px;color:var(--muted);border-left:3px solid transparent;transition:all .15s;cursor:pointer;border-radius:0 10px 10px 0;margin:1px 7px 1px 0}
+.ni:hover{background:var(--card);color:var(--text)}
+.ni.active{background:rgba(124,58,237,.14);color:var(--purpleL);border-left-color:var(--purple);font-weight:700}
+.ni-ic{font-size:15px;width:19px;text-align:center;flex-shrink:0}
+.ni-badge{margin-left:auto;padding:2px 6px;border-radius:20px;font-size:10px;font-weight:800;flex-shrink:0}
+.aside-foot{margin-top:auto;padding:11px 13px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:7px}
+.api-info{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:9px 11px;font-size:11px;color:var(--muted)}
+.api-info code{color:var(--neon);font-size:10px;display:block;margin-top:3px;word-break:break-all}
+.lo-btn{width:100%;padding:8px;background:rgba(255,34,68,.1);border:1px solid rgba(255,34,68,.2);border-radius:9px;color:var(--red);font-weight:700;font-size:12px}
+.lo-btn:hover{background:rgba(255,34,68,.2)}
+
+/* MAIN */
+.main-area{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.topbar{height:54px;background:rgba(13,13,27,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:13px;flex-shrink:0}
+.tb-title{font-size:15px;font-weight:800}
+.tb-crumb{font-size:12px;color:var(--muted)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:9px}
+.tb-search{background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:6px 13px;color:var(--text);font-size:13px;outline:none;width:190px}
+.tb-search:focus{border-color:var(--purple)}
+.tb-icon-btn{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:6px 9px;font-size:15px;color:var(--muted);position:relative}
+.tb-ndot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid var(--surface)}
+.tb-user{display:flex;align-items:center;gap:7px;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:5px 11px;cursor:pointer}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:20px}
+.page{display:none}
+.page.active{display:block}
+
+/* STATS */
+.sg{display:grid;gap:13px;margin-bottom:22px}
+.sg-4{grid-template-columns:repeat(4,1fr)}
+.sg-3{grid-template-columns:repeat(3,1fr)}
+.sg-2{grid-template-columns:repeat(2,1fr)}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:18px;position:relative;overflow:hidden;transition:transform .2s}
+.sc:hover{transform:translateY(-2px)}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc.c1::before{background:var(--g1)}.sc.c2::before{background:var(--g2)}
+.sc.c3::before{background:var(--g3)}.sc.c4::before{background:var(--g4)}
+.sc.c5::before{background:var(--g5)}.sc.c6::before{background:var(--g6)}
+.sc-ic{font-size:24px;margin-bottom:9px}
+.sc-val{font-size:22px;font-weight:900;line-height:1}
+.sc-lbl{font-size:11px;color:var(--muted);margin-top:4px}
+.sc-delta{font-size:11px;font-weight:700;margin-top:7px}
+.up{color:var(--neon)}.dn{color:var(--red)}.ne{color:var(--gold)}
+
+/* PANELS */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:18px;margin-bottom:16px;position:relative}
+.p-title{font-size:13px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.p-title span{display:flex;align-items:center;gap:7px}
+
+/* TABLE */
+.tw{background:var(--card);border:1px solid var(--border);border-radius:15px;overflow:hidden;margin-bottom:18px}
+.tw-hd{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.tw-hd h3{font-size:13px;font-weight:800}
+table{width:100%;border-collapse:collapse}
+th{padding:9px 13px;text-align:left;font-size:10px;font-weight:800;color:var(--dim);letter-spacing:.8px;background:var(--card2);text-transform:uppercase;white-space:nowrap}
+td{padding:11px 13px;font-size:12.5px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+.ta{background:none;border:1px solid var(--border);border-radius:7px;padding:3px 8px;font-size:11px;font-weight:600;color:var(--muted);transition:all .15s;cursor:pointer;margin:0 2px}
+.ta:hover{border-color:var(--purple);color:var(--purpleL)}
+.ta.dng:hover{border-color:var(--red);color:var(--red)}
+.ta.ok:hover{border-color:var(--neon);color:var(--neon)}
+.ta.warn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* PILLS */
+.pl{display:inline-flex;align-items:center;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;white-space:nowrap}
+.pl-r{background:rgba(255,34,68,.15);color:var(--redL);border:1px solid rgba(255,34,68,.25)}
+.pl-p{background:rgba(124,58,237,.15);color:var(--purpleL);border:1px solid rgba(124,58,237,.25)}
+.pl-g{background:rgba(245,158,11,.15);color:var(--goldL);border:1px solid rgba(245,158,11,.25)}
+.pl-n{background:rgba(0,229,160,.15);color:var(--neonL);border:1px solid rgba(0,229,160,.25)}
+.pl-b{background:rgba(59,130,246,.15);color:var(--blueL);border:1px solid rgba(59,130,246,.25)}
+.pl-d{background:rgba(45,49,84,.5);color:var(--muted);border:1px solid var(--border)}
+.pl-o{background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.25)}
+.pl-c{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.25)}
+.pl-pk{background:rgba(236,72,153,.15);color:var(--pink);border:1px solid rgba(236,72,153,.25)}
+
+/* AV */
+.av{border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0}
+
+/* FORM */
+.fg{display:grid;gap:12px}.fg-2{grid-template-columns:1fr 1fr}.fg-3{grid-template-columns:1fr 1fr 1fr}
+.fr{margin-bottom:12px}
+.fl{font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px;letter-spacing:.5px}
+.fi{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--purple)}
+textarea.fi{resize:vertical;min-height:75px}
+.fi-sm{padding:6px 10px;font-size:12px}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:9px;font-weight:700;font-size:12.5px;border:none;transition:all .2s;cursor:pointer}
+.btn-pr{background:var(--g1);color:#fff}
+.btn-sc{background:var(--g3);color:#000;font-weight:800}
+.btn-gd{background:var(--g2);color:#fff}
+.btn-ol{background:transparent;border:1px solid var(--border2);color:var(--text)}
+.btn-ol:hover{border-color:var(--purple);color:var(--purpleL)}
+.btn-dng{background:rgba(255,34,68,.15);border:1px solid rgba(255,34,68,.3);color:var(--red)}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:8px}
+.btn-xs{padding:4px 8px;font-size:11px;border-radius:7px}
+
+/* TOGGLE */
+.tgl-row{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;background:var(--card2);border-radius:10px;margin-bottom:7px;border:1px solid var(--border)}
+.tgl-info h4{font-size:13px;font-weight:700}.tgl-info p{font-size:11px;color:var(--muted);margin-top:2px}
+.tgl{width:42px;height:23px;border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tgl.on{background:var(--neon)}.tgl.off{background:var(--dim)}
+.tgl::after{content:'';position:absolute;width:17px;height:17px;border-radius:50%;background:#fff;top:3px;transition:left .2s}
+.tgl.on::after{left:22px}.tgl.off::after{left:3px}
+
+/* PROGRESS */
+.pb{height:5px;background:var(--card2);border-radius:3px;overflow:hidden}
+.pb-f{height:100%;border-radius:3px;transition:width .6s}
+
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:#00000099;z-index:5000;align-items:center;justify-content:center;padding:16px}
+.mo.open{display:flex}
+.mo-box{background:var(--surface);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:540px;overflow:hidden;animation:popIn .18s;max-height:90vh;display:flex;flex-direction:column}
+@keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.mo-hd{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.mo-hd h3{font-size:14px;font-weight:800}
+.mo-cl{background:none;border:none;color:var(--muted);font-size:22px;line-height:1}
+.mo-body{padding:18px 20px;overflow-y:auto;flex:1}
+.mo-ft{padding:13px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:7px;flex-shrink:0}
+
+/* TOAST */
+#toast{position:fixed;bottom:22px;right:22px;z-index:9000;display:flex;flex-direction:column;gap:7px}
+.toast-item{background:var(--card);border:1px solid var(--border2);border-radius:11px;padding:11px 15px;font-size:13px;font-weight:600;min-width:260px;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:slideIn .2s;display:flex;align-items:center;gap:9px}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+.toast-ok{border-left:4px solid var(--neon)}.toast-err{border-left:4px solid var(--red)}.toast-warn{border-left:4px solid var(--gold)}
+
+/* ROLE CARDS */
+.role-card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:18px;transition:all .2s}
+.role-card:hover{transform:translateY(-2px);border-color:var(--border2)}
+.role-header{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.role-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.role-name{font-size:14px;font-weight:900}
+.role-count{font-size:11px;color:var(--muted);margin-top:1px}
+.perm-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);padding:2px 0}
+.perm-ok{color:var(--neon)}.perm-no{color:var(--dim)}.perm-partial{color:var(--gold)}
+
+/* APPROVAL */
+.appr-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.appr-card:hover{border-color:var(--border2)}
+.appr-av{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+.appr-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.appr-meta{font-size:11px;color:var(--muted)}
+.appr-actions{display:flex;gap:7px;flex-shrink:0;margin-left:auto}
+
+/* FEED */
+.feed-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.feed-text{font-size:12px;line-height:1.5;flex:1}
+.feed-time{font-size:11px;color:var(--muted);white-space:nowrap}
+
+/* CHART */
+.chart-area{display:flex;align-items:flex-end;gap:5px;height:100px}
+.ch-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.ch-bar{width:100%;border-radius:5px 5px 0 0;min-height:3px}
+.ch-lbl{font-size:10px;color:var(--muted)}
+.ch-val{font-size:9px;color:var(--muted)}
+
+/* ACCESS DENIED */
+.access-block{text-align:center;padding:70px 20px}
+.access-block .lock{font-size:52px;margin-bottom:13px}
+.access-block h2{font-size:17px;font-weight:800;color:var(--red);margin-bottom:7px}
+.access-block p{color:var(--muted);font-size:13px;max-width:280px;margin:0 auto}
+
+/* INT BADGE */
+.int-badge{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.18);border-radius:11px;padding:11px 13px;margin-bottom:13px}
+.int-badge h4{font-size:12px;font-weight:800;color:var(--neon);margin-bottom:3px}
+.int-badge code{font-size:11px;color:var(--muted);display:block;line-height:1.6}
+
+@media(max-width:900px){
+  .aside{position:fixed;left:-260px;z-index:900;transition:transform .3s}
+  .aside.open{transform:translateX(260px)}
+  .sg-4{grid-template-columns:1fr 1fr}
+  .fg-3{grid-template-columns:1fr}
+  #menuBtn{display:block!important}
+}
+@media(max-width:580px){.sg-4,.sg-3,.sg-2{grid-template-columns:1fr}.fg-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<!-- LOGIN -->
+<style>
+/* ── EXTRA LOGIN STYLES ── */
+.step{display:none}.step.active{display:block}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.method-btn{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all .2s;color:var(--text)}
+.method-btn:hover{border-color:var(--purple);background:rgba(124,58,237,.1)}
+.method-btn.selected{border-color:var(--purple);background:rgba(124,58,237,.15)}
+.method-btn .mb-icon{font-size:24px;display:block;margin-bottom:6px}
+.method-btn .mb-label{font-size:12px;font-weight:700}
+.otp-grid{display:flex;gap:10px;justify-content:center;margin:16px 0}
+.otp-box{width:48px;height:56px;background:var(--card2);border:2px solid var(--border2);border-radius:12px;text-align:center;font-size:22px;font-weight:800;color:var(--text);outline:none;transition:border-color .2s}
+.otp-box:focus{border-color:var(--purple)}
+.resend-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-top:8px}
+.resend-btn{background:none;border:none;color:var(--purple);font-size:12px;font-weight:700;cursor:pointer}
+.resend-btn:disabled{color:var(--dim);cursor:not-allowed}
+.google-btn{width:100%;padding:12px;background:#fff;border:1px solid #ddd;border-radius:12px;color:#333;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .2s;margin-bottom:12px}
+.google-btn:hover{background:#f8f8f8;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.divider{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--muted);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border2)}
+.back-btn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:14px;padding:0}
+.back-btn:hover{color:var(--text)}
+.success-icon{font-size:52px;text-align:center;display:block;margin:10px auto 14px}
+.verify-info{background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.2);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--neonL);margin-bottom:16px;text-align:center}
+.timer{font-weight:800;color:var(--red)}
+.step-indicator{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--dim);transition:all .3s}
+.step-dot.active{background:var(--purple);width:24px;border-radius:4px}
+.step-dot.done{background:var(--neon)}
+</style>
+
+<div id="loginScreen">
+  <div class="lg-glow" style="background:rgba(124,58,237,.3);width:380px;height:380px;top:-80px;left:-80px"></div>
+  <div class="lg-glow" style="background:rgba(255,34,68,.2);width:280px;height:280px;bottom:-60px;right:-60px"></div>
+  <div class="lg-box">
+
+    <!-- LOGO -->
+    <div class="lg-icon">🛡️</div>
+    <div class="lg-title">MR Tube Admin</div>
+    <div class="lg-sub">Command Center · v2.0 · Secure Login</div>
+    <div class="lg-badge">🔒 RESTRICTED ACCESS</div>
+
+    <!-- Step indicators -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-dot" id="dot3"></div>
+    </div>
+
+    <!-- ERROR -->
+    <div id="lgErr" class="lg-err"></div>
+
+    <!-- ── STEP 1: Choose Method ── -->
+    <div class="step active" id="step1">
+      <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;text-align:center">Choose how to sign in</div>
+
+      <!-- Google -->
+      <button class="google-btn" onclick="googleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+
+      <div class="divider">OR</div>
+
+      <div class="method-grid">
+        <button class="method-btn" id="mb-email" onclick="selectMethod('email')">
+          <span class="mb-icon">📧</span>
+          <span class="mb-label">Email OTP</span>
+        </button>
+        <button class="method-btn" id="mb-mobile" onclick="selectMethod('mobile')">
+          <span class="mb-icon">📱</span>
+          <span class="mb-label">Mobile OTP</span>
+        </button>
+      </div>
+
+      <div id="emailInputWrap" style="display:none">
+        <label class="f-lbl">EMAIL ADDRESS</label>
+        <input class="f-inp" id="lgEmail" type="email" placeholder="your@mrtube.in"/>
+      </div>
+      <div id="mobileInputWrap" style="display:none">
+        <label class="f-lbl">MOBILE NUMBER</label>
+        <div style="display:flex;gap:8px">
+          <select class="f-inp" style="width:90px;flex-shrink:0">
+            <option>🇮🇳 +91</option><option>🇺🇸 +1</option><option>🇬🇧 +44</option><option>🇦🇪 +971</option>
+          </select>
+          <input class="f-inp" id="lgMobile" type="tel" placeholder="98765 43210" style="flex:1"/>
+        </div>
+      </div>
+
+      <div id="sendOtpWrap" style="display:none;margin-top:4px">
+        <label class="f-lbl">PASSWORD</label>
+        <div class="pw-wrap">
+          <input class="f-inp" id="lgPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')sendOTP()"/>
+          <button class="pw-eye" onclick="togglePw()">👁️</button>
+        </div>
+        <button class="lg-btn" onclick="sendOTP()" id="sendOtpBtn">Send OTP →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: Enter OTP ── -->
+    <div class="step" id="step2">
+      <button class="back-btn" onclick="goStep(1)">← Back</button>
+      <div class="verify-info" id="verifyInfo">OTP sent to your email</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px">Enter 6-digit OTP</div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:16px">Check your email / SMS for the code</div>
+      <div class="otp-grid">
+        <input class="otp-box" id="otp1" maxlength="1" type="number" oninput="otpNext(this,'otp2')" onkeydown="otpKey(event,this,'','otp2')"/>
+        <input class="otp-box" id="otp2" maxlength="1" type="number" oninput="otpNext(this,'otp3')" onkeydown="otpKey(event,this,'otp1','otp3')"/>
+        <input class="otp-box" id="otp3" maxlength="1" type="number" oninput="otpNext(this,'otp4')" onkeydown="otpKey(event,this,'otp2','otp4')"/>
+        <input class="otp-box" id="otp4" maxlength="1" type="number" oninput="otpNext(this,'otp5')" onkeydown="otpKey(event,this,'otp3','otp5')"/>
+        <input class="otp-box" id="otp5" maxlength="1" type="number" oninput="otpNext(this,'otp6')" onkeydown="otpKey(event,this,'otp4','otp6')"/>
+        <input class="otp-box" id="otp6" maxlength="1" type="number" oninput="otpNext(this,'')" onkeydown="otpKey(event,this,'otp5','')"/>
+      </div>
+      <div class="resend-row">
+        <span>Expires in <span class="timer" id="otpTimer">02:00</span></span>
+        <button class="resend-btn" id="resendBtn" onclick="resendOTP()" disabled>Resend OTP</button>
+      </div>
+      <button class="lg-btn" onclick="verifyOTP()" style="margin-top:16px">Verify & Sign In →</button>
+    </div>
+
+    <!-- ── STEP 3: Success ── -->
+    <div class="step" id="step3">
+      <span class="success-icon">✅</span>
+      <div style="text-align:center;font-size:18px;font-weight:800;margin-bottom:8px">Verified!</div>
+      <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:20px">Signing you into the Admin Portal...</div>
+      <div style="height:4px;background:var(--border2);border-radius:2px;overflow:hidden">
+        <div id="loginProgress" style="height:100%;background:var(--g3);border-radius:2px;width:0%;transition:width .05s linear"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="appShell">
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="aside" id="aside">
+  <div class="aside-top">
+    <div class="aside-brand">
+      <div class="ic">🎬</div>
+      <div><div class="nm">MR Tube</div><div class="sb">Admin Command Center</div></div>
+    </div>
+    <div class="user-chip">
+      <div class="uc-av" id="ucAv" style="background:var(--g1);width:32px;height:32px;font-size:11px">SA</div>
+      <div><div class="uc-name" id="ucName">Super Admin</div><div class="uc-role" id="ucRole" style="color:var(--red)">🛡️ Super Admin</div></div>
+    </div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Overview</div>
+    <div class="ni active" onclick="sp('dashboard')"><span class="ni-ic">📊</span>Dashboard</div>
+    <div class="ni" onclick="sp('analytics')"><span class="ni-ic">📈</span>Analytics<span class="ni-badge" style="background:var(--neon);color:#000">Live</span></div>
+    <div class="ni" onclick="sp('notifications')"><span class="ni-ic">🔔</span>Notifications<span class="ni-badge" style="background:var(--red);color:#fff">9</span></div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">People</div>
+    <div class="ni" onclick="sp('users')"><span class="ni-ic">👥</span>All Users</div>
+    <div class="ni" onclick="sp('add-user')"><span class="ni-ic">➕</span>Add User</div>
+    <div class="ni" onclick="sp('approvals')"><span class="ni-ic">✅</span>Approvals<span class="ni-badge" style="background:var(--gold);color:#000">7</span></div>
+    <div class="ni" onclick="sp('roles')"><span class="ni-ic">🔐</span>Roles & Permissions</div>
+    <div class="ni" onclick="sp('hr')"><span class="ni-ic">👩‍💼</span>HR Management</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Subscriptions</div>
+    <div class="ni" onclick="sp('sub-plans')"><span class="ni-ic">📋</span>Manage Plans</div>
+    <div class="ni" onclick="sp('sub-pricing')"><span class="ni-ic">💰</span>Pricing & Fees</div>
+    <div class="ni" onclick="sp('sub-txn')"><span class="ni-ic">💳</span>Transactions</div>
+    <div class="ni" onclick="sp('sub-coupons')"><span class="ni-ic">🎟️</span>Coupons & Offers</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Content</div>
+    <div class="ni" onclick="sp('uploads')"><span class="ni-ic">📤</span>Upload Monitor<span class="ni-badge" style="background:var(--blue);color:#fff">12</span></div>
+    <div class="ni" onclick="sp('content')"><span class="ni-ic">🎞️</span>All Content</div>
+    <div class="ni" onclick="sp('review')"><span class="ni-ic">🔍</span>Review Queue<span class="ni-badge" style="background:var(--orange);color:#fff">5</span></div>
+    <div class="ni" onclick="sp('live-monitor')"><span class="ni-ic">🔴</span>Live Streams</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Finance</div>
+    <div class="ni" onclick="sp('revenue')"><span class="ni-ic">📊</span>Revenue</div>
+    <div class="ni" onclick="sp('payouts')"><span class="ni-ic">🏦</span>Creator Payouts</div>
+    <div class="ni" onclick="sp('tax')"><span class="ni-ic">🧾</span>Tax & Invoices</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Settings & Dev</div>
+    <div class="ni" onclick="sp('settings')"><span class="ni-ic">⚙️</span>Platform Settings</div>
+    <div class="ni" onclick="sp('integration')"><span class="ni-ic">🔌</span>App Integration</div>
+    <div class="ni" onclick="sp('api-keys')"><span class="ni-ic">🗝️</span>API Keys</div>
+  </div>
+  <div class="aside-foot">
+    <div class="api-info">🔌 Integration Ready<code id="apiEndpoint">https://api.mrtube.in/v1</code></div>
+    <button class="lo-btn" onclick="doLogout()">⏻ Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN AREA -->
+<div class="main-area">
+  <div class="topbar">
+    <button id="menuBtn" style="display:none;background:none;border:none;color:var(--text);font-size:20px" onclick="document.getElementById('aside').classList.toggle('open')">☰</button>
+    <div><span class="tb-title" id="tbTitle">Dashboard</span> <span class="tb-crumb" id="tbCrumb">· Welcome</span></div>
+    <div class="tb-right">
+      <input class="tb-search" placeholder="🔍 Search..." type="text"/>
+      <button class="tb-icon-btn" onclick="sp('notifications')">🔔<div class="tb-ndot"></div></button>
+      <button class="tb-icon-btn" onclick="sp('settings')">⚙️</button>
+      <div class="tb-user" onclick="sp('settings')">
+        <div class="av" id="tbAv" style="background:var(--g1);width:24px;height:24px;font-size:10px">SA</div>
+        <span style="font-size:12px;font-weight:700" id="tbName">Super Admin</span>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="sg sg-4">
+    <div class="sc c1"><div class="sc-ic">👥</div><div class="sc-val">2,84,912</div><div class="sc-lbl">Total Users</div><div class="sc-delta up">▲ +12.4% this month</div></div>
+    <div class="sc c2"><div class="sc-ic">💎</div><div class="sc-val">1,12,340</div><div class="sc-lbl">Active Subscribers</div><div class="sc-delta up">▲ +8.7% this month</div></div>
+    <div class="sc c3"><div class="sc-ic">💰</div><div class="sc-val">₹4.2Cr</div><div class="sc-lbl">Monthly Revenue</div><div class="sc-delta up">▲ +22.1% vs last month</div></div>
+    <div class="sc c4"><div class="sc-ic">✅</div><div class="sc-val" id="pendingCount">7 Pending</div><div class="sc-lbl">Awaiting Approval</div><div class="sc-delta ne">● Needs attention</div></div>
+  </div>
+  <div class="sg sg-2">
+    <div class="panel">
+      <div class="p-title"><span>📈 Revenue — Last 7 Days</span><button class="btn btn-sm btn-ol" onclick="sp('revenue')">Full Report</button></div>
+      <div class="chart-area" id="dashChart"></div>
+    </div>
+    <div class="panel">
+      <div class="p-title"><span>✅ Pending Approvals</span><button class="btn btn-sm btn-ol" onclick="sp('approvals')">View All</button></div>
+      <div id="dashApprovals"></div>
+    </div>
+  </div>
+  <div class="sg sg-2">
+    <div class="tw">
+      <div class="tw-hd"><h3>👥 Recent Users</h3><button class="btn btn-sm btn-ol" onclick="sp('users')">View All</button></div>
+      <table><tr><th>User</th><th>Role</th><th>Plan</th><th>Status</th></tr>
+      <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:var(--g1);width:26px;height:26px;font-size:10px">RS</div>Rahul Sharma</div></td><td><span class="pl pl-p">Subscriber</span></td><td><span class="pl pl-p">Premium</span></td><td><span class="pl pl-n">Active</span></td></tr>
+      <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:var(--g4);width:26px;height:26px;font-size:10px">PN</div>Priya Nair</div></td><td><span class="pl pl-pk">Creator</span></td><td><span class="pl pl-g">Pro</span></td><td><span class="pl pl-n">Active</span></td></tr>
+      <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:var(--g3);width:26px;height:26px;font-size:10px">AV</div>Amit Verma</div></td><td><span class="pl pl-c">Moderator</span></td><td><span class="pl pl-b">Basic</span></td><td><span class="pl pl-d">Inactive</span></td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="p-title"><span>⚡ Live Activity</span></div>
+      <div id="dashActivity"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD USER -->
+<div class="page" id="page-add-user">
+  <div class="panel">
+    <div class="p-title"><span>➕ Add New User / Staff</span></div>
+    <div class="int-badge"><h4>🔌 API Integration</h4><code>POST /api/v1/admin/users/create · Bearer {admin_token} · Role: CEO, Super Admin, HR</code></div>
+    <div class="fg fg-2">
+      <div class="fr"><label class="fl">FIRST NAME *</label><input class="fi" placeholder="Rahul" id="nuFirst"/></div>
+      <div class="fr"><label class="fl">LAST NAME *</label><input class="fi" placeholder="Sharma" id="nuLast"/></div>
+      <div class="fr"><label class="fl">EMAIL *</label><input class="fi" type="email" placeholder="rahul@mrtube.in" id="nuEmail"/></div>
+      <div class="fr"><label class="fl">MOBILE</label><input class="fi" placeholder="+91 98765 43210" id="nuPhone"/></div>
+      <div class="fr"><label class="fl">ROLE *</label>
+        <select class="fi" id="nuRole">
+          <option value="">-- Select Role --</option>
+          <option>CEO</option><option>Super Admin</option><option>Admin</option>
+          <option>Manager</option><option>HR</option><option>Moderator</option>
+          <option>Analyst</option><option>Creator</option><option>Subscriber</option>
+        </select>
+      </div>
+      <div class="fr"><label class="fl">DEPARTMENT</label>
+        <select class="fi" id="nuDept">
+          <option>Technology</option><option>Content</option><option>Finance</option>
+          <option>HR & People</option><option>Marketing</option><option>Operations</option>
+        </select>
+      </div>
+      <div class="fr"><label class="fl">SUBSCRIPTION PLAN</label>
+        <select class="fi" id="nuPlan"><option>Free</option><option>Basic</option><option>Premium</option><option>Premium Pro</option></select>
+      </div>
+      <div class="fr"><label class="fl">REPORTS TO</label>
+        <select class="fi"><option>CEO</option><option>Super Admin</option><option>Manager – Content</option><option>Manager – Tech</option><option>HR Head</option></select>
+      </div>
+    </div>
+    <div class="fr"><label class="fl">NOTES</label><textarea class="fi" placeholder="Any notes about this user..."></textarea></div>
+    <div class="tgl-row"><div class="tgl-info"><h4>Send welcome email</h4><p>Auto-send credentials to user's email</p></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+    <div class="tgl-row" style="margin-bottom:14px"><div class="tgl-info"><h4>Require email verification</h4><p>User must verify before first login</p></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+    <div style="display:flex;gap:9px"><button class="btn btn-pr" onclick="addUser()">➕ Create User</button><button class="btn btn-ol" onclick="clearUserForm()">Clear</button></div>
+  </div>
+  <div class="panel">
+    <div class="p-title"><span>📥 Bulk Import via CSV</span></div>
+    <div style="border:2px dashed var(--border2);border-radius:12px;padding:26px;text-align:center;margin-bottom:12px;cursor:pointer" onclick="toast('CSV upload — connect to your backend storage','ok')">
+      <div style="font-size:34px;margin-bottom:8px">📄</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">Drop CSV here or click to browse</div>
+      <div style="font-size:12px;color:var(--muted)">Columns: first_name, last_name, email, role, department, plan</div>
+    </div>
+    <button class="btn btn-ol btn-sm" onclick="toast('CSV template downloaded','ok')">📥 Download Template</button>
+  </div>
+</div>
+
+<!-- USERS -->
+<div class="page" id="page-users">
+  <div class="tw">
+    <div class="tw-hd">
+      <h3>👥 All Users & Staff</h3>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <input class="fi fi-sm" style="width:170px" placeholder="🔍 Search..." oninput="filterUsers(this.value)"/>
+        <select class="fi fi-sm" style="width:auto" onchange="filterRole(this.value)">
+          <option value="">All Roles</option><option>CEO</option><option>Super Admin</option><option>Admin</option><option>Manager</option><option>HR</option><option>Moderator</option><option>Creator</option><option>Subscriber</option>
+        </select>
+        <button class="btn btn-pr btn-sm" onclick="sp('add-user')">➕ Add</button>
+        <button class="btn btn-ol btn-sm" onclick="toast('Exporting users...','ok')">📥 Export</button>
+      </div>
+    </div>
+    <table id="userTable"></table>
+  </div>
+</div>
+
+<!-- APPROVALS -->
+<div class="page" id="page-approvals">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="font-size:15px;font-weight:800">✅ Pending Approvals <span class="pl pl-g" id="approvalCount">7 pending</span></div>
+    <button class="btn btn-ol btn-sm" onclick="toast('Approval history exported','ok')">📥 History</button>
+  </div>
+  <div class="int-badge"><h4>🔌 API Integration</h4><code>GET /api/v1/admin/approvals · PATCH /api/v1/admin/approvals/{id}/approve · /reject</code></div>
+  <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="btn btn-sm btn-pr" onclick="filterApprovals('all')">All</button>
+    <button class="btn btn-sm btn-ol" onclick="filterApprovals('new_user')">New Users</button>
+    <button class="btn btn-sm btn-ol" onclick="filterApprovals('role_change')">Role Change</button>
+    <button class="btn btn-sm btn-ol" onclick="filterApprovals('content')">Content</button>
+    <button class="btn btn-sm btn-ol" onclick="filterApprovals('creator')">Creator Verify</button>
+  </div>
+  <div id="approvalsList"></div>
+</div>
+
+<!-- ROLES -->
+<div class="page" id="page-roles">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:15px;font-weight:800">🔐 Roles & Permissions</div>
+    <button class="btn btn-pr btn-sm" onclick="openMo('moAddRole')">+ Create Role</button>
+  </div>
+  <div class="int-badge"><h4>🔌 API Integration</h4><code>GET /api/v1/admin/roles · POST /api/v1/admin/roles/create · PATCH /api/v1/admin/roles/{id} · DELETE /api/v1/admin/roles/{id}</code></div>
+  <div class="sg" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+    <div class="role-card" style="border-color:rgba(245,158,11,.3)">
+      <div class="role-header"><div class="role-icon" style="background:rgba(245,158,11,.15)">👑</div><div><div class="role-name" style="color:var(--goldL)">CEO</div><div class="role-count">1 user · Supreme access</div></div><button class="btn btn-xs btn-ol" style="margin-left:auto" onclick="openEditRole('CEO')">Edit</button></div>
+      <div class="perm-item"><span class="perm-ok">✓</span> All system access</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Financial reports & billing</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Create / delete any role</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Override all approvals</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> API key management</div>
+    </div>
+    <div class="role-card" style="border-color:rgba(255,34,68,.3)">
+      <div class="role-header"><div class="role-icon" style="background:rgba(255,34,68,.15)">🛡️</div><div><div class="role-name" style="color:var(--redL)">Super Admin</div><div class="role-count">2 users · Full admin</div></div><button class="btn btn-xs btn-ol" style="margin-left:auto" onclick="openEditRole('Super Admin')">Edit</button></div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Manage all users & roles</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Edit subscription pricing</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Revenue & analytics</div>
+      <div class="perm-item"><span class="perm-partial">~</span> Financial exports (view only)</div>
+      <div class="perm-item"><span class="perm-no">✗</span> Delete roles / CEO override</div>
+    </div>
+    <div class="role-card" style="border-color:rgba(124,58,237,.3)">
+      <div class="role-header"><div class="role-icon" style="background:rgba(124,58,237,.15)">⚙️</div><div><div class="role-name" style="color:var(--purpleL)">Admin</div><div class="role-count">5 users · High access</div></div><button class="btn btn-xs btn-ol" style="margin-left:auto" onclick="openEditRole('Admin')">Edit</button></div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Manage users (no delete)</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Approve content & uploads</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Manage coupons</div>
+      <div class="perm-item"><span class="perm-partial">~</span> View subscription data</div>
+      <div class="perm-item"><span class="perm-no">✗</span> Edit pricing / role mgmt</div>
+    </div>
+    <div class="role-card" style="border-color:rgba(59,130,246,.3)">
+      <div class="role-header"><div class="role-icon" style="background:rgba(59,130,246,.15)">📋</div><div><div class="role-name" style="color:var(--blueL)">Manager</div><div class="role-count">8 users · Mid access</div></div><button class="btn btn-xs btn-ol" style="margin-left:auto" onclick="openEditRole('Manager')">Edit</button></div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Manage team members</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Approve content queue</div>
+      <div class="perm-item"><span class="perm-partial">~</span> Approve new user requests</div>
+      <div class="perm-item"><span class="perm-no">✗</span> Pricing / financial data</div>
+    </div>
+    <div class="role-card" style="border-color:rgba(0,229,160,.3)">
+      <div class="role-header"><div class="role-icon" style="background:rgba(0,229,160,.15)">👩‍💼</div><div><div class="role-name" style="color:var(--neonL)">HR</div><div class="role-count">3 users · People ops</div></div><button class="btn btn-xs btn-ol" style="margin-left:auto" onclick="openEditRole('HR')">Edit</button></div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Add / deactivate staff</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Manage roles & assignments</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Approve onboarding requests</div>
+      <div class="perm-item"><span class="perm-no">✗</span> Financial / content mgmt</div>
+    </div>
+    <div class="role-card" style="border-color:rgba(6,182,212,.3)">
+      <div class="role-header"><div class="role-icon" style="background:rgba(6,182,212,.15)">👮</div><div><div class="role-name" style="color:var(--cyan)">Moderator</div><div class="role-count">12 users · Content only</div></div><button class="btn btn-xs btn-ol" style="margin-left:auto" onclick="openEditRole('Moderator')">Edit</button></div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Review & approve uploads</div>
+      <div class="perm-item"><span class="perm-ok">✓</span> Flag policy violations</div>
+      <div class="perm-item"><span class="perm-no">✗</span> User / financial access</div>
+    </div>
+    <div class="role-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px;cursor:pointer" onclick="openMo('moAddRole')">
+      <div style="font-size:34px;margin-bottom:8px">➕</div>
+      <div style="font-size:13px;font-weight:700;color:var(--muted)">Create Custom Role</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px;text-align:center">Define granular permissions</div>
+    </div>
+  </div>
+  <div class="tw" style="margin-top:18px">
+    <div class="tw-hd"><h3>📊 Permission Matrix</h3><button class="btn btn-sm btn-ol" onclick="toast('Exporting matrix...','ok')">📥 Export</button></div>
+    <table>
+      <tr><th>Permission</th><th>CEO</th><th>Super Admin</th><th>Admin</th><th>Manager</th><th>HR</th><th>Moderator</th></tr>
+      <tr><td style="font-weight:600">View Dashboard</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td style="font-weight:600">Manage Users</td><td>✅</td><td>✅</td><td>⚠️</td><td>⚠️</td><td>✅</td><td>❌</td></tr>
+      <tr><td style="font-weight:600">Add / Remove Staff</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td><td>❌</td></tr>
+      <tr><td style="font-weight:600">Edit Pricing</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td></tr>
+      <tr><td style="font-weight:600">Approve Content</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td><td>✅</td></tr>
+      <tr><td style="font-weight:600">View Revenue</td><td>✅</td><td>✅</td><td>⚠️</td><td>❌</td><td>❌</td><td>❌</td></tr>
+      <tr><td style="font-weight:600">Manage Roles</td><td>✅</td><td>⚠️</td><td>❌</td><td>❌</td><td>⚠️</td><td>❌</td></tr>
+      <tr><td style="font-weight:600">API Access</td><td>✅</td><td>✅</td><td>⚠️</td><td>❌</td><td>❌</td><td>❌</td></tr>
+      <tr><td colspan="7" style="font-size:11px;color:var(--muted);text-align:center;padding:10px">✅ Full &nbsp;⚠️ Partial &nbsp;❌ None</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- HR -->
+<div class="page" id="page-hr">
+  <div style="font-size:15px;font-weight:800;margin-bottom:14px">👩‍💼 HR Management</div>
+  <div class="sg sg-4">
+    <div class="sc c3"><div class="sc-ic">👤</div><div class="sc-val">31</div><div class="sc-lbl">Total Staff</div><div class="sc-delta up">▲ +3 this month</div></div>
+    <div class="sc c1"><div class="sc-ic">✅</div><div class="sc-val">28</div><div class="sc-lbl">Active</div><div class="sc-delta up">▲ 90% retention</div></div>
+    <div class="sc c5"><div class="sc-ic">⏳</div><div class="sc-val">4</div><div class="sc-lbl">Pending Onboarding</div><div class="sc-delta ne">● Action needed</div></div>
+    <div class="sc c4"><div class="sc-ic">🏖️</div><div class="sc-val">2</div><div class="sc-lbl">On Leave</div><div class="sc-delta ne">● This week</div></div>
+  </div>
+  <div class="sg sg-2">
+    <div class="panel">
+      <div class="p-title"><span>🏢 Departments</span><button class="btn btn-xs btn-pr" onclick="toast('Add department','ok')">+ Dept</button></div>
+      <div id="deptList"></div>
+    </div>
+    <div class="panel">
+      <div class="p-title"><span>📋 Recent HR Actions</span></div>
+      <div class="feed-item"><div class="feed-dot" style="background:var(--neon)"></div><div class="feed-text"><strong>Kiran Rao</strong> promoted to Senior Moderator</div><div class="feed-time">2h ago</div></div>
+      <div class="feed-item"><div class="feed-dot" style="background:var(--blue)"></div><div class="feed-text"><strong>Meera Joshi</strong> onboarded as HR Executive</div><div class="feed-time">1d ago</div></div>
+      <div class="feed-item"><div class="feed-dot" style="background:var(--gold)"></div><div class="feed-text"><strong>Rohan Das</strong> role changed: Moderator → Manager</div><div class="feed-time">2d ago</div></div>
+      <div class="feed-item"><div class="feed-dot" style="background:var(--red)"></div><div class="feed-text"><strong>Anonymous</strong> account suspended (policy violation)</div><div class="feed-time">3d ago</div></div>
+      <div class="feed-item"><div class="feed-dot" style="background:var(--purple)"></div><div class="feed-text"><strong>5 new creators</strong> approved for monetization</div><div class="feed-time">5d ago</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBSCRIPTION PLANS -->
+<div class="page" id="page-sub-plans">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:15px;font-weight:800">📋 Subscription Plans</div>
+    <button class="btn btn-pr btn-sm" onclick="openMo('moAddPlan')">+ New Plan</button>
+  </div>
+  <div class="int-badge"><h4>🔌 API Integration</h4><code>GET /api/v1/plans · POST /api/v1/plans/create · PATCH /api/v1/plans/{id} · DELETE /api/v1/plans/{id}</code></div>
+  <div class="sg" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    <div class="panel" style="border-color:var(--dim)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:14px;font-weight:900;color:var(--muted)">Free</div><div style="font-size:24px;font-weight:900;margin:5px 0">₹0</div></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">1,72,542 users</div>
+      <div class="pb" style="margin-bottom:12px"><div class="pb-f" style="width:61%;background:var(--dim)"></div></div>
+      <button class="btn btn-ol btn-sm" style="width:100%" onclick="openEditPlan('Free','0')">✏️ Edit Plan</button>
+    </div>
+    <div class="panel" style="border-color:rgba(59,130,246,.35)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:14px;font-weight:900;color:var(--blueL)">Basic</div><div style="font-size:24px;font-weight:900;color:var(--blueL);margin:5px 0">₹99</div></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">51,000 users · ₹50.5L/mo</div>
+      <div class="pb" style="margin-bottom:12px"><div class="pb-f" style="width:18%;background:var(--blue)"></div></div>
+      <button class="btn btn-ol btn-sm" style="width:100%" onclick="openEditPlan('Basic','99')">✏️ Edit Plan</button>
+    </div>
+    <div class="panel" style="border-color:rgba(124,58,237,.4)">
+      <div style="position:absolute;top:12px;right:12px;background:var(--g1);color:#fff;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px">POPULAR</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:14px;font-weight:900;color:var(--purpleL)">Premium</div><div style="font-size:24px;font-weight:900;color:var(--purpleL);margin:5px 0">₹199</div></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">48,920 users · ₹97.8L/mo</div>
+      <div class="pb" style="margin-bottom:12px"><div class="pb-f" style="width:17%;background:var(--purple)"></div></div>
+      <button class="btn btn-pr btn-sm" style="width:100%" onclick="openEditPlan('Premium','199')">✏️ Edit Plan</button>
+    </div>
+    <div class="panel" style="border-color:rgba(245,158,11,.4)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:14px;font-weight:900;color:var(--goldL)">Premium Pro</div><div style="font-size:24px;font-weight:900;color:var(--goldL);margin:5px 0">₹299</div></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">12,450 users · ₹37.3L/mo</div>
+      <div class="pb" style="margin-bottom:12px"><div class="pb-f" style="width:4%;background:var(--gold)"></div></div>
+      <button class="btn btn-gd btn-sm" style="width:100%" onclick="openEditPlan('Premium Pro','299')">✏️ Edit Plan</button>
+    </div>
+  </div>
+  <div class="tw">
+    <div class="tw-hd"><h3>📊 Features Matrix (Editable)</h3></div>
+    <table>
+      <tr><th>Feature</th><th>Free</th><th>Basic</th><th>Premium</th><th>Premium Pro</th></tr>
+      <tr><td style="font-weight:600">Monthly Price</td><td>₹0</td><td><input class="fi fi-sm" style="width:65px" value="₹99" onchange="toast('Price updated!','ok')"/></td><td><input class="fi fi-sm" style="width:65px" value="₹199" onchange="toast('Price updated!','ok')"/></td><td><input class="fi fi-sm" style="width:65px" value="₹299" onchange="toast('Price updated!','ok')"/></td></tr>
+      <tr><td style="font-weight:600">Video Quality</td><td>SD 480p</td><td>HD 1080p</td><td>4K UHD</td><td>4K + HDR</td></tr>
+      <tr><td style="font-weight:600">Daily Limit</td><td>10</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+      <tr><td style="font-weight:600">Offline Download</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+      <tr><td style="font-weight:600">Ads</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+      <tr><td style="font-weight:600">Family Sharing</td><td>❌</td><td>❌</td><td>❌</td><td>5 users</td></tr>
+      <tr><td style="font-weight:600">Support</td><td>Community</td><td>Email</td><td>Priority Email</td><td>24/7 Phone</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PRICING & FEES -->
+<div class="page" id="page-sub-pricing">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:15px;font-weight:800">💰 Pricing & Fees Control</div>
+    <button class="btn btn-pr" onclick="savePricing()">💾 Save All Changes</button>
+  </div>
+  <div class="int-badge"><h4>🔌 API Integration</h4><code>PATCH /api/v1/admin/pricing · Body: {plan_id, price, currency:"INR", gst_inclusive:true} · Role: CEO, Super Admin</code></div>
+  <div class="sg sg-2">
+    <div class="panel">
+      <div class="p-title"><span>💵 Subscription Prices</span></div>
+      <div class="fr"><label class="fl">BASIC (₹/month)</label><input class="fi" type="number" value="99" id="pBasic"/></div>
+      <div class="fr"><label class="fl">PREMIUM (₹/month)</label><input class="fi" type="number" value="199" id="pPremium"/></div>
+      <div class="fr"><label class="fl">PREMIUM PRO (₹/month)</label><input class="fi" type="number" value="299" id="pPro"/></div>
+      <div class="fr"><label class="fl">ANNUAL DISCOUNT (%)</label><input class="fi" type="number" value="20"/></div>
+      <div class="fr"><label class="fl">FREE TRIAL DAYS</label><input class="fi" type="number" value="7"/></div>
+    </div>
+    <div class="panel">
+      <div class="p-title"><span>🎬 Creator Fee Structure</span></div>
+      <div class="fr"><label class="fl">PLATFORM COMMISSION (%)</label><input class="fi" type="number" value="30"/></div>
+      <div class="fr"><label class="fl">CREATOR REVENUE SHARE (%)</label><input class="fi" type="number" value="70"/></div>
+      <div class="fr"><label class="fl">MINIMUM PAYOUT (₹)</label><input class="fi" type="number" value="1000"/></div>
+      <div class="fr"><label class="fl">PAYOUT CYCLE</label><select class="fi"><option>Monthly</option><option>Bi-weekly</option><option>Weekly</option></select></div>
+    </div>
+    <div class="panel">
+      <div class="p-title"><span>🛡️ GST & Tax</span></div>
+      <div class="fg fg-2">
+        <div class="fr"><label class="fl">GST RATE (%)</label><input class="fi" type="number" value="18"/></div>
+        <div class="fr"><label class="fl">TDS RATE (%)</label><input class="fi" type="number" value="10"/></div>
+      </div>
+      <div class="fr"><label class="fl">GST NUMBER</label><input class="fi" value="29AADCM1234F1ZR"/></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>GST inclusive pricing</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Auto-generate invoices</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+    </div>
+    <div class="panel">
+      <div class="p-title"><span>💳 Payment Gateways</span></div>
+      <table><tr><th>Gateway</th><th>Fee</th><th>Status</th><th>Action</th></tr>
+      <tr><td style="font-weight:700">Razorpay</td><td>2%+₹3</td><td><span class="pl pl-n">Active</span></td><td><button class="ta" onclick="toast('Razorpay config opened','ok')">Config</button></td></tr>
+      <tr><td style="font-weight:700">PayU</td><td>2.5%+₹3</td><td><span class="pl pl-d">Off</span></td><td><button class="ta ok" onclick="toast('PayU enabling...','ok')">Enable</button></td></tr>
+      <tr><td style="font-weight:700">Stripe (Intl.)</td><td>3%+$0.3</td><td><span class="pl pl-n">Active</span></td><td><button class="ta" onclick="toast('Stripe config opened','ok')">Config</button></td></tr>
+      <tr><td style="font-weight:700">UPI Direct</td><td>0%</td><td><span class="pl pl-n">Active</span></td><td><button class="ta" onclick="toast('UPI settings','ok')">Config</button></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSACTIONS -->
+<div class="page" id="page-sub-txn">
+  <div class="tw">
+    <div class="tw-hd">
+      <h3>💳 Transactions</h3>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <select class="fi fi-sm" style="width:auto"><option>All Plans</option><option>Basic</option><option>Premium</option><option>Pro</option></select>
+        <select class="fi fi-sm" style="width:auto"><option>This Month</option><option>Last Month</option><option>This Year</option></select>
+        <button class="btn btn-ol btn-sm" onclick="toast('Exporting CSV...','ok')">📥 Export</button>
+      </div>
+    </div>
+    <table>
+      <tr><th>#</th><th>User</th><th>Plan</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+      <tr><td style="color:var(--muted);font-size:11px">#8821</td><td><div style="display:flex;align-items:center;gap:7px"><div class="av" style="background:var(--g1);width:24px;height:24px;font-size:9px">RS</div>Rahul S.</div></td><td><span class="pl pl-p">Premium</span></td><td style="font-weight:700;color:var(--neon)">₹199</td><td>UPI</td><td style="font-size:11px;color:var(--muted)">Jul 26</td><td><span class="pl pl-n">Success</span></td><td><button class="ta ok">View</button><button class="ta dng" onclick="toast('Refund initiated','warn')">Refund</button></td></tr>
+      <tr><td style="color:var(--muted);font-size:11px">#8820</td><td><div style="display:flex;align-items:center;gap:7px"><div class="av" style="background:var(--g4);width:24px;height:24px;font-size:9px">PN</div>Priya N.</div></td><td><span class="pl pl-g">Pro</span></td><td style="font-weight:700;color:var(--neon)">₹299</td><td>Card</td><td style="font-size:11px;color:var(--muted)">Jul 25</td><td><span class="pl pl-n">Success</span></td><td><button class="ta ok">View</button><button class="ta dng">Refund</button></td></tr>
+      <tr><td style="color:var(--muted);font-size:11px">#8819</td><td><div style="display:flex;align-items:center;gap:7px"><div class="av" style="background:var(--g3);width:24px;height:24px;font-size:9px">AV</div>Amit V.</div></td><td><span class="pl pl-b">Basic</span></td><td style="font-weight:700;color:var(--neon)">₹99</td><td>UPI</td><td style="font-size:11px;color:var(--muted)">Jul 25</td><td><span class="pl pl-r">Failed</span></td><td><button class="ta ok">View</button><button class="ta warn" onclick="toast('Retrying...','warn')">Retry</button></td></tr>
+      <tr><td style="color:var(--muted);font-size:11px">#8818</td><td><div style="display:flex;align-items:center;gap:7px"><div class="av" style="background:var(--g2);width:24px;height:24px;font-size:9px">KR</div>Kiran R.</div></td><td><span class="pl pl-p">Premium</span></td><td style="font-weight:700;color:var(--neon)">₹199</td><td>Net Banking</td><td style="font-size:11px;color:var(--muted)">Jul 24</td><td><span class="pl pl-n">Success</span></td><td><button class="ta ok">View</button><button class="ta dng">Refund</button></td></tr>
+      <tr><td style="color:var(--muted);font-size:11px">#8817</td><td><div style="display:flex;align-items:center;gap:7px"><div class="av" style="background:var(--g5);width:24px;height:24px;font-size:9px">SP</div>Sneha P.</div></td><td><span class="pl pl-b">Basic</span></td><td style="font-weight:700;color:var(--neon)">₹99</td><td>Wallet</td><td style="font-size:11px;color:var(--muted)">Jul 24</td><td><span class="pl pl-o">Pending</span></td><td><button class="ta ok" onclick="toast('Payment approved','ok')">Approve</button><button class="ta dng">Cancel</button></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- COUPONS -->
+<div class="page" id="page-sub-coupons">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:15px;font-weight:800">🎟️ Coupons & Offers</div>
+    <button class="btn btn-pr btn-sm" onclick="openMo('moCoupon')">+ Create Coupon</button>
+  </div>
+  <div class="sg" style="grid-template-columns:repeat(auto-fill,minmax(270px,1fr))">
+    <div class="panel" style="border-color:rgba(0,229,160,.2)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:17px;font-weight:900;font-family:monospace;color:var(--neon)">INDIA50</span><span class="pl pl-n">Active</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:7px">50% off · All Plans · Independence Day</div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:10px"><span>Used: <strong>1,234</strong></span><span>Expires: Aug 15</span></div>
+      <div class="pb" style="margin-bottom:11px"><div class="pb-f" style="width:62%;background:var(--neon)"></div></div>
+      <div style="display:flex;gap:7px"><button class="btn btn-xs btn-ol" onclick="openMo('moCoupon')" style="flex:1">Edit</button><button class="btn btn-xs btn-dng" onclick="toast('Coupon deactivated','warn')" style="flex:1">Deactivate</button></div>
+    </div>
+    <div class="panel" style="border-color:rgba(245,158,11,.2)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:17px;font-weight:900;font-family:monospace;color:var(--gold)">NEWUSER30</span><span class="pl pl-n">Active</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:7px">30% off · New users · First month only</div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:10px"><span>Used: <strong>8,402</strong></span><span>No expiry</span></div>
+      <div class="pb" style="margin-bottom:11px"><div class="pb-f" style="width:100%;background:var(--gold)"></div></div>
+      <div style="display:flex;gap:7px"><button class="btn btn-xs btn-ol" style="flex:1">Edit</button><button class="btn btn-xs btn-dng" onclick="toast('Coupon deactivated','warn')" style="flex:1">Deactivate</button></div>
+    </div>
+    <div class="panel" style="opacity:.6;border-color:rgba(255,34,68,.15)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:17px;font-weight:900;font-family:monospace;color:var(--red)">HOLI2025</span><span class="pl pl-d">Expired</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:7px">25% off · Holi Special</div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:10px"><span>Used: <strong>3,800</strong></span><span>Expired: Mar 25</span></div>
+      <div class="pb" style="margin-bottom:11px"><div class="pb-f" style="width:100%;background:var(--red)"></div></div>
+      <div style="display:flex;gap:7px"><button class="btn btn-xs btn-ol" onclick="openMo('moCoupon')" style="flex:1">Duplicate</button><button class="btn btn-xs btn-dng" onclick="toast('Coupon deleted','warn')" style="flex:1">Delete</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOADS -->
+<div class="page" id="page-uploads">
+  <div style="font-size:15px;font-weight:800;margin-bottom:14px">📤 Upload Monitor</div>
+  <div class="int-badge"><h4>🔌 API Integration</h4><code>GET /api/v1/admin/uploads?status=pending · PATCH /api/v1/admin/uploads/{id}/approve · /reject · /pause · DELETE /api/v1/admin/uploads/{id}</code></div>
+  <div class="sg sg-4">
+    <div class="sc c3"><div class="sc-ic">📤</div><div class="sc-val">342</div><div class="sc-lbl">Uploads Today</div><div class="sc-delta up">▲ 12 active</div></div>
+    <div class="sc c1"><div class="sc-ic">✅</div><div class="sc-val">318</div><div class="sc-lbl">Published</div><div class="sc-delta up">▲ 93% success</div></div>
+    <div class="sc c5"><div class="sc-ic">⏳</div><div class="sc-val">12</div><div class="sc-lbl">Processing</div><div class="sc-delta ne">● In queue</div></div>
+    <div class="sc c4"><div class="sc-ic">❌</div><div class="sc-val">12</div><div class="sc-lbl">Rejected</div><div class="sc-delta dn">▼ Policy violations</div></div>
+  </div>
+  <div class="tw">
+    <div class="tw-hd"><h3>🔄 Live Upload Queue</h3><button class="btn btn-sm btn-ol" onclick="toast('Queue refreshed','ok')">🔃 Refresh</button></div>
+    <table>
+      <tr><th>Content</th><th>Creator</th><th>Type</th><th>Size</th><th>Language</th><th>Progress</th><th>Status</th><th>Actions</th></tr>
+      <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:42px;height:28px;background:var(--card2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px">🎵</div><div><div style="font-weight:700;font-size:12px">Kesariya – Full HD</div><div style="font-size:10px;color:var(--muted)">45 MB · MP4</div></div></div></td><td style="font-size:12px">Arijit Singh</td><td><span class="pl pl-p">Music</span></td><td style="font-size:12px">45 MB</td><td><span class="pl pl-d">Hindi</span></td><td><div class="pb" style="width:80px"><div class="pb-f" style="width:100%;background:var(--neon)"></div></div></td><td><span class="pl pl-n">Published</span></td><td><button class="ta">View</button><button class="ta dng" onclick="toast('Content removed','warn')">Remove</button></td></tr>
+      <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:42px;height:28px;background:var(--card2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px">🎬</div><div><div style="font-weight:700;font-size:12px">Mirzapur S3 E2</div><div style="font-size:10px;color:var(--muted)">2.1 GB · MP4</div></div></div></td><td style="font-size:12px">Amazon MX</td><td><span class="pl pl-b">Video</span></td><td style="font-size:12px">2.1 GB</td><td><span class="pl pl-d">Hindi</span></td><td><div class="pb" style="width:80px"><div class="pb-f" style="width:72%;background:var(--blue)"></div></div></td><td><span class="pl pl-b">Uploading</span></td><td><button class="ta warn" onclick="toast('Upload paused','warn')">Pause</button><button class="ta dng">Cancel</button></td></tr>
+      <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:42px;height:28px;background:rgba(255,34,68,.1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px">⚠️</div><div><div style="font-weight:700;font-size:12px">Unknown Content</div><div style="font-size:10px;color:var(--muted)">120 MB · MP4</div></div></div></td><td style="font-size:12px">Anonymous</td><td><span class="pl pl-r">Video</span></td><td style="font-size:12px">120 MB</td><td><span class="pl pl-d">?</span></td><td><div class="pb" style="width:80px"><div class="pb-f" style="width:100%;background:var(--red)"></div></div></td><td><span class="pl pl-r">Flagged</span></td><td><button class="ta ok" onclick="toast('Content reviewed','ok')">Review</button><button class="ta dng" onclick="toast('Content deleted','warn')">Delete</button></td></tr>
+    </table>
+  </div>
+  <div class="panel">
+    <div class="p-title"><span>⚙️ Upload Rules</span></div>
+    <div class="fg fg-2">
+      <div class="fr"><label class="fl">MAX SIZE — FREE (MB)</label><input class="fi" type="number" value="500"/></div>
+      <div class="fr"><label class="fl">MAX SIZE — PAID (GB)</label><input class="fi" type="number" value="10"/></div>
+      <div class="fr"><label class="fl">UPLOADS/DAY — FREE</label><input class="fi" type="number" value="2"/></div>
+      <div class="fr"><label class="fl">UPLOADS/DAY — PAID</label><input class="fi" type="number" value="50"/></div>
+    </div>
+    <div class="tgl-row"><div class="tgl-info"><h4>AI auto-moderation</h4><p>Flag inappropriate content automatically</p></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+    <div class="tgl-row"><div class="tgl-info"><h4>Copyright scan on upload</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+    <div class="tgl-row"><div class="tgl-info"><h4>Manual approval for new creators</h4><p>First 5 uploads require admin review</p></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+    <button class="btn btn-pr" style="margin-top:10px" onclick="toast('Upload rules saved!','ok')">Save Rules</button>
+  </div>
+</div>
+
+<!-- REVENUE -->
+<div class="page" id="page-revenue">
+  <div style="font-size:15px;font-weight:800;margin-bottom:14px">📊 Revenue Overview</div>
+  <div class="sg sg-4">
+    <div class="sc c1"><div class="sc-ic">💰</div><div class="sc-val">₹4.2Cr</div><div class="sc-lbl">Total (July)</div><div class="sc-delta up">▲ +22.1%</div></div>
+    <div class="sc c2"><div class="sc-ic">💎</div><div class="sc-val">₹3.1Cr</div><div class="sc-lbl">Subscriptions</div><div class="sc-delta up">▲ +15%</div></div>
+    <div class="sc c3"><div class="sc-ic">📢</div><div class="sc-val">₹82L</div><div class="sc-lbl">Ad Revenue</div><div class="sc-delta up">▲ +8.2%</div></div>
+    <div class="sc c4"><div class="sc-ic">🏦</div><div class="sc-val">₹28L</div><div class="sc-lbl">Creator Payouts</div><div class="sc-delta dn">▼ 6.6%</div></div>
+  </div>
+  <div class="panel">
+    <div class="p-title"><span>💎 Revenue by Plan</span></div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:700;color:var(--goldL)">Premium Pro</span><span style="font-size:13px;font-weight:800;color:var(--gold)">₹37.3L</span></div><div class="pb"><div class="pb-f" style="width:38%;background:var(--gold)"></div></div><div style="font-size:11px;color:var(--muted);margin-top:3px">12,450 users × ₹299</div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:700;color:var(--purpleL)">Premium</span><span style="font-size:13px;font-weight:800;color:var(--purpleL)">₹97.4L</span></div><div class="pb"><div class="pb-f" style="width:100%;background:var(--purple)"></div></div><div style="font-size:11px;color:var(--muted);margin-top:3px">48,920 users × ₹199</div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:700;color:var(--blueL)">Basic</span><span style="font-size:13px;font-weight:800;color:var(--blueL)">₹50.5L</span></div><div class="pb"><div class="pb-f" style="width:52%;background:var(--blue)"></div></div><div style="font-size:11px;color:var(--muted);margin-top:3px">51,000 users × ₹99</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+<div class="page" id="page-analytics">
+  <div style="font-size:15px;font-weight:800;margin-bottom:14px">📈 Live Analytics</div>
+  <div class="sg sg-4">
+    <div class="sc c1"><div class="sc-ic">👁️</div><div class="sc-val">4,82,120</div><div class="sc-lbl">Active Right Now</div><div class="sc-delta up">▲ Peak hours</div></div>
+    <div class="sc c3"><div class="sc-ic">📺</div><div class="sc-val">12.4M</div><div class="sc-lbl">Views Today</div><div class="sc-delta up">▲ +18% vs yesterday</div></div>
+    <div class="sc c2"><div class="sc-ic">⏱️</div><div class="sc-val">48 min</div><div class="sc-lbl">Avg Watch Time</div><div class="sc-delta up">▲ +3 min this week</div></div>
+    <div class="sc c4"><div class="sc-ic">🔄</div><div class="sc-val">68%</div><div class="sc-lbl">Retention Rate</div><div class="sc-delta up">▲ Excellent</div></div>
+  </div>
+  <div class="sg sg-2">
+    <div class="panel">
+      <div class="p-title"><span>🌐 Top Languages</span></div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Hindi</span><span style="font-size:11px;color:var(--muted)">38%</span></div><div class="pb"><div class="pb-f" style="width:38%;background:var(--g1)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Tamil</span><span style="font-size:11px;color:var(--muted)">18%</span></div><div class="pb"><div class="pb-f" style="width:18%;background:var(--g3)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Telugu</span><span style="font-size:11px;color:var(--muted)">14%</span></div><div class="pb"><div class="pb-f" style="width:14%;background:var(--g4)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Bhojpuri</span><span style="font-size:11px;color:var(--muted)">9%</span></div><div class="pb"><div class="pb-f" style="width:9%;background:var(--g2)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Nepali</span><span style="font-size:11px;color:var(--muted)">4%</span></div><div class="pb"><div class="pb-f" style="width:4%;background:var(--g6)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:700">Others</span><span style="font-size:11px;color:var(--muted)">17%</span></div><div class="pb"><div class="pb-f" style="width:17%;background:var(--dim)"></div></div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="p-title"><span>📱 Device Breakdown</span></div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:700">📱 Mobile</span><span style="font-size:11px;color:var(--muted)">72%</span></div><div class="pb"><div class="pb-f" style="width:72%;background:var(--purple)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:700">💻 Desktop</span><span style="font-size:11px;color:var(--muted)">20%</span></div><div class="pb"><div class="pb-f" style="width:20%;background:var(--blue)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:700">📺 Smart TV</span><span style="font-size:11px;color:var(--muted)">8%</span></div><div class="pb"><div class="pb-f" style="width:8%;background:var(--neon)"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:15px;font-weight:800">⚙️ Platform Settings</div>
+    <button class="btn btn-pr" onclick="toast('All settings saved!','ok')">💾 Save All</button>
+  </div>
+  <div class="sg sg-2">
+    <div class="panel">
+      <div class="p-title"><span>🏢 Platform Info</span></div>
+      <div class="fr"><label class="fl">PLATFORM NAME</label><input class="fi" value="MR Tube"/></div>
+      <div class="fr"><label class="fl">TAGLINE</label><input class="fi" value="Stream India's Best"/></div>
+      <div class="fr"><label class="fl">SUPPORT EMAIL</label><input class="fi" value="support@mrtube.in"/></div>
+      <div class="fr"><label class="fl">PHONE</label><input class="fi" value="1800-MR-TUBE"/></div>
+      <div class="fr"><label class="fl">HQ ADDRESS</label><input class="fi" value="Cyber City, Gurugram 122002"/></div>
+    </div>
+    <div class="panel">
+      <div class="p-title"><span>🔧 Feature Toggles</span></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>New registrations</h4><p>Allow public sign-ups</p></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Maintenance mode</h4></div><div class="tgl off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Ad system (free users)</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Live streaming</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Creator monetization</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Bhojpuri / Nepali content</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP INTEGRATION -->
+<div class="page" id="page-integration">
+  <div style="font-size:15px;font-weight:800;margin-bottom:14px">🔌 App Integration Guide</div>
+  <div class="panel" style="border-color:rgba(0,229,160,.2)">
+    <div class="p-title"><span style="color:var(--neon)">🚀 Connect Your Mobile / Web App</span></div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:14px">This admin portal exposes a clean REST API. Connect any frontend (React Native, Flutter, Next.js) using the endpoints below. Auth uses JWT. Roles are embedded in the token payload.</p>
+    <div class="fg fg-2">
+      <div class="panel" style="background:var(--card2)"><div style="font-size:12px;font-weight:800;margin-bottom:8px;color:var(--neon)">📡 Base URL</div><code style="font-size:11px;color:var(--text);background:var(--bg);padding:7px 11px;border-radius:7px;display:block">https://api.mrtube.in/v1</code></div>
+      <div class="panel" style="background:var(--card2)"><div style="font-size:12px;font-weight:800;margin-bottom:8px;color:var(--gold)">🔑 Auth Header</div><code style="font-size:11px;color:var(--text);background:var(--bg);padding:7px 11px;border-radius:7px;display:block">Authorization: Bearer {jwt_token}</code></div>
+    </div>
+  </div>
+  <div class="tw">
+    <div class="tw-hd"><h3>📋 Full API Reference</h3></div>
+    <table>
+      <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Min Role</th></tr>
+      <tr><td><span class="pl pl-n">GET</span></td><td><code style="font-size:11px">/admin/dashboard</code></td><td>Dashboard stats</td><td>All</td></tr>
+      <tr><td><span class="pl pl-b">POST</span></td><td><code style="font-size:11px">/admin/users/create</code></td><td>Add user/staff</td><td>CEO/SA/HR</td></tr>
+      <tr><td><span class="pl pl-n">GET</span></td><td><code style="font-size:11px">/admin/users</code></td><td>List all users</td><td>Admin+</td></tr>
+      <tr><td><span class="pl pl-o">PATCH</span></td><td><code style="font-size:11px">/admin/users/{id}</code></td><td>Update user</td><td>Admin+</td></tr>
+      <tr><td><span class="pl pl-r">DELETE</span></td><td><code style="font-size:11px">/admin/users/{id}</code></td><td>Delete user</td><td>CEO/SA</td></tr>
+      <tr><td><span class="pl pl-n">GET</span></td><td><code style="font-size:11px">/admin/roles</code></td><td>Get all roles</td><td>CEO/SA/HR</td></tr>
+      <tr><td><span class="pl pl-b">POST</span></td><td><code style="font-size:11px">/admin/roles/create</code></td><td>Create role</td><td>CEO/SA</td></tr>
+      <tr><td><span class="pl pl-n">GET</span></td><td><code style="font-size:11px">/admin/approvals</code></td><td>Pending approvals</td><td>Manager+</td></tr>
+      <tr><td><span class="pl pl-o">PATCH</span></td><td><code style="font-size:11px">/admin/approvals/{id}/approve</code></td><td>Approve item</td><td>Manager+</td></tr>
+      <tr><td><span class="pl pl-o">PATCH</span></td><td><code style="font-size:11px">/admin/approvals/{id}/reject</code></td><td>Reject item</td><td>Manager+</td></tr>
+      <tr><td><span class="pl pl-n">GET</span></td><td><code style="font-size:11px">/plans</code></td><td>All sub plans</td><td>Public</td></tr>
+      <tr><td><span class="pl pl-o">PATCH</span></td><td><code style="font-size:11px">/admin/pricing</code></td><td>Update pricing</td><td>CEO/SA</td></tr>
+      <tr><td><span class="pl pl-n">GET</span></td><td><code style="font-size:11px">/admin/uploads</code></td><td>Upload queue</td><td>Admin+</td></tr>
+      <tr><td><span class="pl pl-o">PATCH</span></td><td><code style="font-size:11px">/admin/uploads/{id}/approve</code></td><td>Approve upload</td><td>Mod+</td></tr>
+      <tr><td><span class="pl pl-n">GET</span></td><td><code style="font-size:11px">/admin/revenue</code></td><td>Revenue data</td><td>Admin+</td></tr>
+      <tr><td><span class="pl pl-n">GET</span></td><td><code style="font-size:11px">/admin/analytics/live</code></td><td>Live stats</td><td>Admin+</td></tr>
+    </table>
+  </div>
+  <div class="sg sg-2">
+    <div class="panel"><div class="p-title"><span>📱 React Native / Flutter</span></div><div style="font-size:12px;color:var(--muted);line-height:1.9">1. Store token in <code style="color:var(--neon)">SecureStorage</code><br/>2. Add header to all requests<br/>3. Handle <code style="color:var(--red)">401</code> → redirect to login<br/>4. Role in JWT payload as <code style="color:var(--neon)">role</code><br/>5. Show/hide UI by role<br/>6. WebSocket: <code style="color:var(--neon)">wss://api.mrtube.in/ws/admin</code></div></div>
+    <div class="panel"><div class="p-title"><span>🌐 Next.js / React Web</span></div><div style="font-size:12px;color:var(--muted);line-height:1.9">1. Use <code style="color:var(--neon)">next-auth</code> or <code style="color:var(--neon)">jwt-decode</code><br/>2. Store token in <code style="color:var(--neon)">httpOnly cookie</code><br/>3. Protect routes in middleware by role<br/>4. API client: <code style="color:var(--neon)">axios</code> with interceptors<br/>5. State: <code style="color:var(--neon)">Zustand</code> or <code style="color:var(--neon)">Redux Toolkit</code><br/>6. Real-time: <code style="color:var(--neon)">socket.io-client</code></div></div>
+  </div>
+</div>
+
+<!-- API KEYS -->
+<div class="page" id="page-api-keys">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:15px;font-weight:800">🗝️ API Keys</div>
+    <button class="btn btn-pr btn-sm" onclick="genKey()">+ Generate Key</button>
+  </div>
+  <div class="tw">
+    <div class="tw-hd"><h3>Active API Keys</h3></div>
+    <table>
+      <tr><th>Name</th><th>Key (masked)</th><th>Role</th><th>Created</th><th>Last Used</th><th>Actions</th></tr>
+      <tr><td style="font-weight:700">Mobile App – Production</td><td><code style="font-size:11px;color:var(--neon)">mrt_prod_••••••2f9a</code></td><td><span class="pl pl-p">Admin</span></td><td style="font-size:11px;color:var(--muted)">Jan 2025</td><td style="font-size:11px;color:var(--muted)">2h ago</td><td><button class="ta ok" onclick="toast('Key copied!','ok')">Copy</button><button class="ta dng" onclick="toast('Key revoked','warn')">Revoke</button></td></tr>
+      <tr><td style="font-weight:700">Website – Production</td><td><code style="font-size:11px;color:var(--neon)">mrt_web_••••••8b3c</code></td><td><span class="pl pl-b">Read</span></td><td style="font-size:11px;color:var(--muted)">Mar 2025</td><td style="font-size:11px;color:var(--muted)">5 min ago</td><td><button class="ta ok" onclick="toast('Key copied!','ok')">Copy</button><button class="ta dng" onclick="toast('Key revoked','warn')">Revoke</button></td></tr>
+      <tr><td style="font-weight:700">Analytics Service</td><td><code style="font-size:11px;color:var(--neon)">mrt_ana_••••••4d1e</code></td><td><span class="pl pl-n">Analyst</span></td><td style="font-size:11px;color:var(--muted)">Jun 2025</td><td style="font-size:11px;color:var(--muted)">1d ago</td><td><button class="ta ok" onclick="toast('Key copied!','ok')">Copy</button><button class="ta dng" onclick="toast('Key revoked','warn')">Revoke</button></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Stub pages -->
+<div class="page" id="page-content"><div style="font-size:15px;font-weight:800;margin-bottom:12px">🎞️ All Content</div><p style="color:var(--muted)">Browse and manage all platform content...</p></div>
+<div class="page" id="page-review"><div style="font-size:15px;font-weight:800;margin-bottom:12px">🔍 Review Queue <span class="pl pl-o">5 pending</span></div><p style="color:var(--muted)">Content awaiting moderation...</p></div>
+<div class="page" id="page-live-monitor"><div style="font-size:15px;font-weight:800;margin-bottom:12px">🔴 Live Streams <span class="pl pl-n">47 live</span></div><p style="color:var(--muted)">Monitor active live streams...</p></div>
+<div class="page" id="page-payouts"><div style="font-size:15px;font-weight:800;margin-bottom:12px">🏦 Creator Payouts</div><p style="color:var(--muted)">Manage creator earnings and payouts...</p></div>
+<div class="page" id="page-tax"><div style="font-size:15px;font-weight:800;margin-bottom:12px">🧾 Tax & Invoices</div><p style="color:var(--muted)">GST invoices and tax records...</p></div>
+<div class="page" id="page-notifications"><div style="font-size:15px;font-weight:800;margin-bottom:12px">🔔 Notifications</div><p style="color:var(--muted)">System alerts and notifications...</p></div>
+  </div><!-- /content -->
+</div><!-- /main-area -->
+</div><!-- /shell -->
+</div><!-- /appShell -->
+
+<!-- ══ MODALS ══ -->
+<div class="mo" id="moAddRole" onclick="if(event.target===this)closeMo('moAddRole')">
+  <div class="mo-box">
+    <div class="mo-hd"><h3>🔐 Create New Role</h3><button class="mo-cl" onclick="closeMo('moAddRole')">✕</button></div>
+    <div class="mo-body">
+      <div class="fr"><label class="fl">ROLE NAME *</label><input class="fi" placeholder="e.g. Content Lead"/></div>
+      <div class="fr"><label class="fl">DESCRIPTION</label><input class="fi" placeholder="What does this role do?"/></div>
+      <div class="fr"><label class="fl">REPORTS TO</label><select class="fi"><option>CEO</option><option>Super Admin</option><option>Admin</option><option>Manager</option></select></div>
+      <div class="fr"><label class="fl">PERMISSIONS</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox" checked/> View Dashboard</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox"/> Manage Users</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox" checked/> Approve Content</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox"/> Edit Pricing</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox"/> View Revenue</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox"/> Manage Roles</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox"/> API Access</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox" checked/> HR Management</label>
+        </div>
+      </div>
+    </div>
+    <div class="mo-ft"><button class="btn btn-ol" onclick="closeMo('moAddRole')">Cancel</button><button class="btn btn-pr" onclick="closeMo('moAddRole');toast('Role created successfully!','ok')">Create Role</button></div>
+  </div>
+</div>
+
+<div class="mo" id="moEditRole" onclick="if(event.target===this)closeMo('moEditRole')">
+  <div class="mo-box">
+    <div class="mo-hd"><h3>✏️ Edit Role — <span id="erName">Admin</span></h3><button class="mo-cl" onclick="closeMo('moEditRole')">✕</button></div>
+    <div class="mo-body">
+      <div class="fr"><label class="fl">ROLE NAME</label><input class="fi" id="erInput"/></div>
+      <div class="fr"><label class="fl">PERMISSIONS</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox" checked/> View Dashboard</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox" checked/> Manage Users</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox" checked/> Approve Content</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox"/> Edit Pricing</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox"/> View Revenue</label>
+          <label style="display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:6px 10px;background:var(--card2);border-radius:8px"><input type="checkbox"/> Manage Roles</label>
+        </div>
+      </div>
+    </div>
+    <div class="mo-ft">
+      <button class="btn btn-dng btn-sm" onclick="closeMo('moEditRole');toast('Role deleted','warn')">Delete Role</button>
+      <button class="btn btn-ol" onclick="closeMo('moEditRole')">Cancel</button>
+      <button class="btn btn-pr" onclick="closeMo('moEditRole');toast('Role updated!','ok')">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="moAddPlan" onclick="if(event.target===this)closeMo('moAddPlan')">
+  <div class="mo-box">
+    <div class="mo-hd"><h3>➕ Add Subscription Plan</h3><button class="mo-cl" onclick="closeMo('moAddPlan')">✕</button></div>
+    <div class="mo-body">
+      <div class="fg fg-2">
+        <div class="fr"><label class="fl">PLAN NAME *</label><input class="fi" placeholder="e.g. Student Plan"/></div>
+        <div class="fr"><label class="fl">MONTHLY PRICE (₹) *</label><input class="fi" type="number" placeholder="149"/></div>
+        <div class="fr"><label class="fl">ANNUAL PRICE (₹)</label><input class="fi" type="number" placeholder="1490"/></div>
+        <div class="fr"><label class="fl">TRIAL DAYS</label><input class="fi" type="number" value="7"/></div>
+        <div class="fr"><label class="fl">MAX DEVICES</label><select class="fi"><option>1</option><option>2</option><option>3</option><option>5</option><option>Unlimited</option></select></div>
+        <div class="fr"><label class="fl">VIDEO QUALITY</label><select class="fi"><option>SD 480p</option><option>HD 1080p</option><option>4K UHD</option><option>4K+HDR</option></select></div>
+      </div>
+      <div class="fr"><label class="fl">DESCRIPTION</label><textarea class="fi" placeholder="Describe this plan..."></textarea></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Ad-free</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Offline downloads</h4></div><div class="tgl off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+    </div>
+    <div class="mo-ft"><button class="btn btn-ol" onclick="closeMo('moAddPlan')">Cancel</button><button class="btn btn-pr" onclick="closeMo('moAddPlan');toast('Plan created!','ok')">Create Plan</button></div>
+  </div>
+</div>
+
+<div class="mo" id="moEditPlan" onclick="if(event.target===this)closeMo('moEditPlan')">
+  <div class="mo-box">
+    <div class="mo-hd"><h3>✏️ Edit Plan — <span id="epName">Premium</span></h3><button class="mo-cl" onclick="closeMo('moEditPlan')">✕</button></div>
+    <div class="mo-body">
+      <div class="fg fg-2">
+        <div class="fr"><label class="fl">MONTHLY PRICE (₹)</label><input class="fi" type="number" id="epPrice"/></div>
+        <div class="fr"><label class="fl">TRIAL DAYS</label><input class="fi" type="number" value="7"/></div>
+      </div>
+      <div class="fr"><label class="fl">VIDEO QUALITY</label><select class="fi"><option>SD 480p</option><option>HD 1080p</option><option>4K UHD</option><option>4K+HDR</option></select></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Ad-free</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Offline downloads</h4></div><div class="tgl on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+      <div class="tgl-row"><div class="tgl-info"><h4>Family sharing</h4></div><div class="tgl off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div></div>
+    </div>
+    <div class="mo-ft"><button class="btn btn-ol" onclick="closeMo('moEditPlan')">Cancel</button><button class="btn btn-pr" onclick="closeMo('moEditPlan');toast('Plan updated!','ok')">Save Changes</button></div>
+  </div>
+</div>
+
+<div class="mo" id="moCoupon" onclick="if(event.target===this)closeMo('moCoupon')">
+  <div class="mo-box">
+    <div class="mo-hd"><h3>🎟️ Create Coupon</h3><button class="mo-cl" onclick="closeMo('moCoupon')">✕</button></div>
+    <div class="mo-body">
+      <div class="fr"><label class="fl">COUPON CODE *</label><input class="fi" placeholder="DIWALI25" style="font-family:monospace;font-size:15px;font-weight:800;letter-spacing:2px"/></div>
+      <div class="fg fg-2">
+        <div class="fr"><label class="fl">DISCOUNT TYPE</label><select class="fi"><option>Percentage (%)</option><option>Fixed (₹)</option></select></div>
+        <div class="fr"><label class="fl">VALUE</label><input class="fi" type="number" placeholder="25"/></div>
+        <div class="fr"><label class="fl">APPLIES TO</label><select class="fi"><option>All Plans</option><option>Basic</option><option>Premium</option><option>Pro</option></select></div>
+        <div class="fr"><label class="fl">MAX USES</label><input class="fi" type="number" placeholder="5000"/></div>
+      </div>
+      <div class="fr"><label class="fl">EXPIRY DATE</label><input class="fi" type="date"/></div>
+    </div>
+    <div class="mo-ft"><button class="btn btn-ol" onclick="closeMo('moCoupon')">Cancel</button><button class="btn btn-gd" onclick="closeMo('moCoupon');toast('Coupon created!','ok')">Create Coupon 🎟️</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── ACCOUNTS ──
+const ACCTS = {
+  'ceo@mrtube.in':        {pw:'CEO@Mrt2025',  role:'CEO',        name:'CEO',         init:'CE', grad:'linear-gradient(135deg,#f59e0b,#f97316)', roleColor:'#fbbf24', pages:'all'},
+  'superadmin@mrtube.in': {pw:'SAdmin@2025',  role:'Super Admin',name:'Super Admin', init:'SA', grad:'linear-gradient(135deg,#ff2244,#7c3aed)', roleColor:'#ff5577', pages:'all'},
+  'admin@mrtube.in':      {pw:'Admin@2025',   role:'Admin',      name:'Admin',       init:'AD', grad:'linear-gradient(135deg,#7c3aed,#a855f7)', roleColor:'#a855f7', pages:'all'},
+  'manager@mrtube.in':    {pw:'Mgr@2025',     role:'Manager',    name:'Manager',     init:'MG', grad:'linear-gradient(135deg,#3b82f6,#06b6d4)', roleColor:'#60a5fa', pages:['dashboard','analytics','users','approvals','uploads','content','review','live-monitor','notifications','settings']},
+  'hr@mrtube.in':         {pw:'HR@2025',      role:'HR',         name:'HR Manager',  init:'HR', grad:'linear-gradient(135deg,#00e5a0,#3b82f6)', roleColor:'#33ffb8', pages:['dashboard','users','add-user','approvals','roles','hr','notifications']},
+  'moderator@mrtube.in':  {pw:'Mod@2025',     role:'Moderator',  name:'Moderator',   init:'MO', grad:'linear-gradient(135deg,#06b6d4,#3b82f6)', roleColor:'#06b6d4', pages:['dashboard','uploads','content','review','live-monitor','notifications']},
+};
+let CU = null;
+
+// Users list
+let USERS = [
+  {id:1,first:'Rahul',   last:'Sharma', email:'rahul@email.com',   role:'Subscriber', dept:'N/A',       plan:'Premium', status:'Active',   lastActive:'2h ago',  rev:'₹2,388', init:'RS', grad:'linear-gradient(135deg,#ff2244,#7c3aed)'},
+  {id:2,first:'Priya',   last:'Nair',   email:'priya@email.com',   role:'Creator',    dept:'Content',   plan:'Pro',     status:'Active',   lastActive:'5min ago', rev:'₹5,382', init:'PN', grad:'linear-gradient(135deg,#ec4899,#7c3aed)'},
+  {id:3,first:'Amit',    last:'Verma',  email:'amit@email.com',    role:'Moderator',  dept:'Content',   plan:'Basic',   status:'Inactive', lastActive:'3d ago',   rev:'₹594',   init:'AV', grad:'linear-gradient(135deg,#00e5a0,#3b82f6)'},
+  {id:4,first:'Sneha',   last:'Patel',  email:'sneha@email.com',   role:'HR',         dept:'HR & People',plan:'Premium',status:'Active',   lastActive:'1h ago',   rev:'₹2,388', init:'SP', grad:'linear-gradient(135deg,#f59e0b,#ff2244)'},
+  {id:5,first:'Kiran',   last:'Rao',    email:'kiran@email.com',   role:'Manager',    dept:'Technology',plan:'Pro',     status:'Active',   lastActive:'30min ago',rev:'₹5,382', init:'KR', grad:'linear-gradient(135deg,#7c3aed,#a855f7)'},
+  {id:6,first:'Meera',   last:'Joshi',  email:'meera@email.com',   role:'HR',         dept:'HR & People',plan:'Basic',  status:'Active',   lastActive:'4h ago',   rev:'₹0',     init:'MJ', grad:'linear-gradient(135deg,#00e5a0,#06b6d4)'},
+  {id:7,first:'Rohan',   last:'Das',    email:'rohan@email.com',   role:'Manager',    dept:'Content',   plan:'Premium', status:'Active',   lastActive:'1h ago',   rev:'₹1,194', init:'RD', grad:'linear-gradient(135deg,#f59e0b,#f97316)'},
+];
+
+let APPROVALS = [
+  {id:1,name:'Meera Joshi',  type:'new_user',   req:'Onboard as HR Executive',           dept:'HR & People', av:'MJ', grad:'linear-gradient(135deg,#00e5a0,#3b82f6)', time:'2h ago'},
+  {id:2,name:'Rohan Das',    type:'role_change', req:'Promote: Moderator → Manager',     dept:'Content',     av:'RD', grad:'linear-gradient(135deg,#f59e0b,#ff2244)', time:'4h ago'},
+  {id:3,name:'Anjali Singh', type:'new_user',   req:'Onboard as Analyst',                dept:'Finance',     av:'AS', grad:'linear-gradient(135deg,#7c3aed,#a855f7)', time:'6h ago'},
+  {id:4,name:'Vikram Nair',  type:'content',    req:'Approve premium content upload',    dept:'Content',     av:'VN', grad:'linear-gradient(135deg,#ff2244,#7c3aed)', time:'8h ago'},
+  {id:5,name:'Divya Menon',  type:'role_change', req:'Grant API access to Analyst role', dept:'Technology',  av:'DM', grad:'linear-gradient(135deg,#ec4899,#7c3aed)', time:'1d ago'},
+  {id:6,name:'Arjun Kumar',  type:'new_user',   req:'Onboard as Content Creator',        dept:'Content',     av:'AK', grad:'linear-gradient(135deg,#3b82f6,#06b6d4)', time:'1d ago'},
+  {id:7,name:'Bhojpuri Ch.', type:'creator',    req:'Verify creator for monetization',   dept:'Content',     av:'BC', grad:'linear-gradient(135deg,#f97316,#f59e0b)', time:'2d ago'},
+];
+
+const DEPTS = [
+  {name:'Technology',  count:8,  lead:'Ananya Kumar', color:'var(--blue)'},
+  {name:'Content',     count:12, lead:'Rahul Shah',   color:'var(--purple)'},
+  {name:'Finance',     count:4,  lead:'Suresh Iyer',  color:'var(--neon)'},
+  {name:'HR & People', count:3,  lead:'Meera Joshi',  color:'var(--gold)'},
+  {name:'Marketing',   count:6,  lead:'Priya Rao',    color:'var(--pink)'},
+  {name:'Operations',  count:2,  lead:'Kiran Rao',    color:'var(--orange)'},
+];
+
+// ── AUTH ──
+
+function doLogout(){
+  CU=null;
+  clearInterval(otpTimerInterval);
+  selectedMethod=null; generatedOTP=null;
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  ['otp1','otp2','otp3','otp4','otp5','otp6'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  goStep(1);
+}
+
+function setEl(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function setStyle(id,p,v){const el=document.getElementById(id);if(el)el.style[p]=v;}
+
+// ── NAVIGATION ──
+const PT={dashboard:'Dashboard',analytics:'Analytics',notifications:'Notifications',users:'All Users','add-user':'Add User',approvals:'Approvals',roles:'Roles & Permissions',hr:'HR Management','sub-plans':'Subscription Plans','sub-pricing':'Pricing & Fees','sub-txn':'Transactions','sub-coupons':'Coupons & Offers',uploads:'Upload Monitor',content:'All Content',review:'Review Queue','live-monitor':'Live Streams',revenue:'Revenue',payouts:'Creator Payouts',tax:'Tax & Invoices',settings:'Platform Settings',integration:'App Integration','api-keys':'API Keys'};
+
+function sp(id){
+  if(CU&&CU.pages!=='all'&&!CU.pages.includes(id)){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+    let d=document.getElementById('page-denied');
+    if(!d){d=document.createElement('div');d.id='page-denied';d.className='page';document.querySelector('.content').appendChild(d);}
+    d.innerHTML='<div style="text-align:center;padding:70px 20px"><div style="font-size:52px;margin-bottom:13px">🔒</div><h2 style="font-size:17px;font-weight:800;color:var(--red);margin-bottom:7px">Access Restricted</h2><p style="color:var(--muted);font-size:13px;max-width:280px;margin:0 auto">Your role (<strong>'+CU.role+'</strong>) does not have permission to access this section. Contact Super Admin.</p></div>';
+    d.classList.add('active');
+    setEl('tbTitle','Access Denied'); setEl('tbCrumb','');
+    return;
+  }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
+  setEl('tbTitle',PT[id]||id); setEl('tbCrumb',CU?'· '+CU.name:'');
+  document.querySelectorAll('.ni').forEach(n=>{if((n.getAttribute('onclick')||'').includes("'"+id+"'"))n.classList.add('active');});
+  document.querySelector('.content').scrollTo(0,0);
+  if(id==='dashboard')buildChart();
+}
+
+// ── USERS ──
+function planPill(p){const m={Free:'pl-d',Basic:'pl-b',Premium:'pl-p',Pro:'pl-g','Premium Pro':'pl-g'};return`<span class="pl ${m[p]||'pl-d'}">${p}</span>`;}
+function statusPill(s){const m={Active:'pl-n',Inactive:'pl-d',Banned:'pl-r'};return`<span class="pl ${m[s]||'pl-d'}">${s}</span>`;}
+function rolePill(r){const m={CEO:'pl-g','Super Admin':'pl-r',Admin:'pl-p',Manager:'pl-b',HR:'pl-n',Moderator:'pl-c',Creator:'pl-pk',Subscriber:'pl-d',Analyst:'pl-o'};return`<span class="pl ${m[r]||'pl-d'}">${r}</span>`;}
+function typePill(t){const m={new_user:'pl-n',role_change:'pl-b',content:'pl-p',creator:'pl-pk'};const l={new_user:'New User',role_change:'Role Change',content:'Content',creator:'Creator Verify'};return`<span class="pl ${m[t]||'pl-d'}">${l[t]||t}</span>`;}
+
+function renderUsers(data){
+  const t=document.getElementById('userTable');
+  if(!t)return;
+  t.innerHTML='<tr><th>User</th><th>Role</th><th>Email</th><th>Dept</th><th>Plan</th><th>Status</th><th>Last Active</th><th>Actions</th></tr>'+
+    data.map(u=>`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:${u.grad};width:28px;height:28px;font-size:10px">${u.init}</div><div><div style="font-weight:700;font-size:13px">${u.first} ${u.last}</div></div></div></td>
+      <td>${rolePill(u.role)}</td><td style="font-size:11px;color:var(--muted)">${u.email}</td>
+      <td style="font-size:12px;color:var(--muted)">${u.dept}</td><td>${planPill(u.plan)}</td>
+      <td>${statusPill(u.status)}</td><td style="font-size:11px;color:var(--muted)">${u.lastActive}</td>
+      <td><button class="ta" onclick="editUserModal(${u.id})">Edit</button><button class="ta warn" onclick="changeUserRole(${u.id})">Role</button><button class="ta dng" onclick="banUser(${u.id},'${u.first}')">Ban</button></td>
+    </tr>`).join('');
+}
+
+function filterUsers(q){renderUsers(USERS.filter(u=>(u.first+' '+u.last+u.email+u.role).toLowerCase().includes(q.toLowerCase())));}
+function filterRole(r){renderUsers(r?USERS.filter(u=>u.role===r):USERS);}
+function editUserModal(id){const u=USERS.find(x=>x.id===id);if(u)toast('Editing: '+u.first+' '+u.last,'ok');}
+function changeUserRole(id){
+  const u=USERS.find(x=>x.id===id);if(!u)return;
+  const nr=prompt('Change role for '+u.first+' '+u.last+':\nOptions: CEO, Super Admin, Admin, Manager, HR, Moderator, Creator, Subscriber',u.role);
+  if(nr&&nr.trim()){u.role=nr.trim();renderUsers(USERS);toast('Role changed to '+nr.trim(),'ok');}
+}
+function banUser(id,name){
+  if(confirm('Ban '+name+'? They lose access immediately.')){
+    const u=USERS.find(x=>x.id===id);if(u){u.status='Banned';renderUsers(USERS);toast(name+' banned','warn');}
+  }
+}
+function addUser(){
+  const f=document.getElementById('nuFirst').value.trim();
+  const l=document.getElementById('nuLast').value.trim();
+  const e=document.getElementById('nuEmail').value.trim();
+  const r=document.getElementById('nuRole').value;
+  const d=document.getElementById('nuDept').value;
+  const pl=document.getElementById('nuPlan').value;
+  if(!f||!l||!e||!r){toast('Fill required fields (*)','err');return;}
+  const grads=['linear-gradient(135deg,#ff2244,#7c3aed)','linear-gradient(135deg,#00e5a0,#3b82f6)','linear-gradient(135deg,#f59e0b,#ff2244)','linear-gradient(135deg,#ec4899,#7c3aed)','linear-gradient(135deg,#3b82f6,#06b6d4)'];
+  USERS.push({id:Date.now(),first:f,last:l,email:e,role:r,dept:d,plan:pl,status:'Active',lastActive:'Just now',rev:'₹0',init:(f[0]+l[0]).toUpperCase(),grad:grads[USERS.length%grads.length]});
+  toast(f+' '+l+' created!','ok');clearUserForm();sp('users');
+}
+function clearUserForm(){['nuFirst','nuLast','nuEmail','nuPhone'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});toast('Form cleared','ok');}
+
+// ── APPROVALS ──
+let approvalFilter='all';
+function renderApprovals(data,filter){
+  const el=document.getElementById('approvalsList');if(!el)return;
+  approvalFilter=filter;
+  const filtered=filter==='all'?data:data.filter(a=>a.type===filter);
+  el.innerHTML=filtered.length?filtered.map(a=>`
+    <div class="appr-card">
+      <div class="appr-av" style="background:${a.grad}">${a.av}</div>
+      <div style="flex:1;min-width:0">
+        <div class="appr-name">${a.name}</div>
+        <div class="appr-meta">${typePill(a.type)} · ${a.req} · ${a.dept} · <span style="color:var(--dim)">${a.time}</span></div>
+      </div>
+      <div style="display:flex;gap:7px;flex-shrink:0">
+        <button class="btn btn-xs btn-sc" onclick="approveItem(${a.id},'${a.name}')">✓ Approve</button>
+        <button class="btn btn-xs btn-dng" onclick="rejectItem(${a.id},'${a.name}')">✗ Reject</button>
+      </div>
+    </div>`).join(''):'<div style="text-align:center;padding:30px;color:var(--muted)">🎉 No pending approvals!</div>';
+}
+function filterApprovals(type){
+  document.querySelectorAll('#page-approvals .btn-sm').forEach(b=>b.className='btn btn-sm btn-ol');
+  event.target.className='btn btn-sm btn-pr';
+  renderApprovals(APPROVALS,type);
+}
+function approveItem(id,name){
+  APPROVALS=APPROVALS.filter(a=>a.id!==id);
+  renderApprovals(APPROVALS,approvalFilter);renderDashApprovals();
+  setEl('approvalCount',APPROVALS.length+' pending');
+  setEl('pendingCount',APPROVALS.length+' Pending');
+  toast(name+' approved! ✓','ok');
+}
+function rejectItem(id,name){
+  APPROVALS=APPROVALS.filter(a=>a.id!==id);
+  renderApprovals(APPROVALS,approvalFilter);renderDashApprovals();
+  setEl('approvalCount',APPROVALS.length+' pending');
+  setEl('pendingCount',APPROVALS.length+' Pending');
+  toast(name+' rejected','warn');
+}
+function renderDashApprovals(){
+  const el=document.getElementById('dashApprovals');if(!el)return;
+  const items=APPROVALS.slice(0,3);
+  el.innerHTML=items.length?items.map(a=>`
+    <div class="appr-card" style="padding:10px 12px">
+      <div class="appr-av" style="background:${a.grad};width:36px;height:36px;border-radius:10px;font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">${a.av}</div>
+      <div style="flex:1;min-width:0"><div class="appr-name" style="font-size:13px">${a.name}</div><div class="appr-meta">${a.req}</div></div>
+      <div style="display:flex;gap:5px"><button class="btn btn-xs btn-sc" onclick="approveItem(${a.id},'${a.name}')">✓</button><button class="btn btn-xs btn-dng" onclick="rejectItem(${a.id},'${a.name}')">✗</button></div>
+    </div>`).join(''):'<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">🎉 All caught up!</div>';
+}
+
+// ── ACTIVITY ──
+function renderActivity(){
+  const el=document.getElementById('dashActivity');if(!el)return;
+  const acts=[
+    {dot:'var(--neon)',text:'<strong>Rahul Sharma</strong> subscribed to Premium'},
+    {dot:'var(--red)',text:'Content <strong>"Unknown Video"</strong> flagged by AI'},
+    {dot:'var(--blue)',text:'<strong>Mirzapur S3 E2</strong> upload 72% complete'},
+    {dot:'var(--gold)',text:'Coupon <strong>INDIA50</strong> used 1,234 times today'},
+    {dot:'var(--purple)',text:'<strong>Meera Joshi</strong> onboarding request pending'},
+  ];
+  el.innerHTML=acts.map((a,i)=>`<div class="feed-item"><div class="feed-dot" style="background:${a.dot}"></div><div class="feed-text">${a.text}</div><div class="feed-time">${[2,8,15,60,120][i]}${i<3?'min':'h'} ago</div></div>`).join('');
+}
+
+// ── DEPARTMENTS ──
+function renderDepts(){
+  const el=document.getElementById('deptList');if(!el)return;
+  el.innerHTML=DEPTS.map(d=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-size:13px;font-weight:700">${d.name}</div><div style="font-size:11px;color:var(--muted)">Lead: ${d.lead}</div></div>
+      <div style="display:flex;align-items:center;gap:9px"><span style="font-size:12px;color:${d.color};font-weight:700">${d.count} staff</span><button class="ta" onclick="toast('Managing ${d.name}','ok')">Manage</button></div>
+    </div>`).join('');
+}
+
+// ── CHART ──
+function buildChart(){
+  const el=document.getElementById('dashChart');if(!el||el.children.length)return;
+  const data=[{d:'Mon',v:52},{d:'Tue',v:68},{d:'Wed',v:45},{d:'Thu',v:82},{d:'Fri',v:91},{d:'Sat',v:74},{d:'Sun',v:88}];
+  const grads=['var(--g1)','var(--g2)','var(--g3)','var(--g4)','var(--g5)','var(--g6)','var(--g1)'];
+  const max=Math.max(...data.map(d=>d.v));
+  data.forEach((d,i)=>{
+    const col=document.createElement('div');col.className='ch-col';
+    col.innerHTML=`<div class="ch-val">₹${d.v}L</div><div class="ch-bar" style="height:${Math.round((d.v/max)*88)}px;background:${grads[i]}"></div><div class="ch-lbl">${d.d}</div>`;
+    el.appendChild(col);
+  });
+}
+
+// ── MODALS ──
+function openMo(id){document.getElementById(id).classList.add('open');}
+function closeMo(id){document.getElementById(id).classList.remove('open');}
+function openEditRole(name){setEl('erName',name);document.getElementById('erInput').value=name;openMo('moEditRole');}
+function openEditPlan(name,price){setEl('epName',name);document.getElementById('epPrice').value=price;openMo('moEditPlan');}
+function genKey(){const k='mrt_'+Math.random().toString(36).substr(2,6)+'_live_'+Math.random().toString(36).substr(2,6);toast('Key generated: '+k,'ok');}
+function savePricing(){toast('Pricing saved: Basic ₹'+document.getElementById('pBasic').value+' · Premium ₹'+document.getElementById('pPremium').value+' · Pro ₹'+document.getElementById('pPro').value,'ok');}
+
+// ── TOAST ──
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  const icons={ok:'✅',err:'❌',warn:'⚠️'};
+  const item=document.createElement('div');
+  item.className='toast-item toast-'+type;
+  item.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  t.appendChild(item);setTimeout(()=>item.remove(),3000);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));
+  if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none'){if(document.getElementById('step2').classList.contains('active'))verifyOTP();else if(document.getElementById('sendOtpWrap').style.display!=='none')sendOTP();}
+});
+if(window.innerWidth<=900)document.getElementById('menuBtn').style.display='block';
+</script>
+</body>
+</html>
