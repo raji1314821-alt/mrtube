@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MR Tube – Stream India's Best</title>
+<style>
+  :root {
+    --bg:       #0a0a0f;
+    --surface:  #111118;
+    --card:     #16161f;
+    --card2:    #1c1c28;
+    --border:   rgba(255,255,255,0.08);
+    --border2:  rgba(255,255,255,0.15);
+    --red:      #ff0033;
+    --redL:     #ff4466;
+    --purple:   #7c3aed;
+    --gold:     #f59e0b;
+    --neon:     #00e5a0;
+    --blue:     #3b82f6;
+    --text:     #f1f5f9;
+    --muted:    #94a3b8;
+    --dim:      #475569;
+    --grad:     linear-gradient(135deg,#ff0033,#7c3aed);
+    --grad2:    linear-gradient(135deg,#f59e0b,#ff0033);
+    --gradFull: linear-gradient(135deg,#ff0033 0%,#7c3aed 40%,#00e5a0 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden}
+  a{text-decoration:none;color:inherit}
+  img{max-width:100%}
+  button{cursor:pointer;font-family:inherit}
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:var(--surface)}
+  ::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
+
+  /* ── NAVBAR ── */
+  .navbar{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    height:60px;background:rgba(10,10,15,0.95);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:16px;padding:0 20px;
+  }
+  .nav-logo{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .nav-logo .icon{width:36px;height:36px;background:var(--grad);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .nav-logo .name{font-size:20px;font-weight:900;background:var(--gradFull);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-search{flex:1;max-width:580px;display:flex;gap:0}
+  .nav-search input{
+    flex:1;background:var(--card2);border:1px solid var(--border2);
+    border-right:none;border-radius:24px 0 0 24px;
+    padding:9px 18px;color:var(--text);font-size:14px;outline:none;
+  }
+  .nav-search input:focus{border-color:var(--red)}
+  .nav-search button{
+    background:var(--card2);border:1px solid var(--border2);border-left:none;
+    border-radius:0 24px 24px 0;padding:9px 18px;color:var(--muted);font-size:16px;
+  }
+  .nav-search button:hover{background:var(--card);color:var(--text)}
+  .nav-right{display:flex;align-items:center;gap:12px;margin-left:auto}
+  .nav-btn{
+    background:none;border:1px solid var(--border2);
+    border-radius:20px;padding:7px 16px;color:var(--text);font-size:13px;font-weight:600;
+    display:flex;align-items:center;gap:6px;transition:all 0.2s;
+  }
+  .nav-btn:hover{background:var(--card2)}
+  .nav-btn.primary{background:var(--grad);border-color:transparent;color:#fff}
+  .nav-lang{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:6px 12px;color:var(--text);font-size:12px;outline:none}
+  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:6px}
+  .hamburger span{width:22px;height:2px;background:var(--text);border-radius:1px;display:block}
+
+  /* ── SIDEBAR ── */
+  .layout{display:flex;margin-top:60px;min-height:calc(100vh - 60px)}
+  .sidebar{
+    width:240px;min-width:240px;background:var(--surface);
+    border-right:1px solid var(--border);
+    position:sticky;top:60px;height:calc(100vh - 60px);
+    overflow-y:auto;flex-shrink:0;
+    display:flex;flex-direction:column;
+  }
+  .sidebar-section{padding:12px 0}
+  .sidebar-section + .sidebar-section{border-top:1px solid var(--border)}
+  .sidebar-label{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1px;padding:8px 20px 4px}
+  .sidebar-item{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 20px;font-size:13px;color:var(--muted);
+    transition:all 0.15s;border-left:3px solid transparent;
+  }
+  .sidebar-item:hover{background:var(--card);color:var(--text);cursor:pointer}
+  .sidebar-item.active{background:var(--card);color:var(--red);border-left-color:var(--red);font-weight:700}
+  .sidebar-item .si-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0}
+  .sidebar-item .si-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:1px 7px}
+
+  /* ── MAIN CONTENT ── */
+  .main{flex:1;min-width:0;overflow-y:auto}
+  .page{display:none;padding:24px}
+  .page.active{display:block}
+
+  /* ── HERO ── */
+  .hero{
+    border-radius:20px;overflow:hidden;margin-bottom:28px;position:relative;
+    background:linear-gradient(135deg,#1a0010,#0d0025,#001a12);
+    border:1px solid var(--border2);min-height:320px;
+    display:flex;align-items:center;padding:40px;
+  }
+  .hero-content{flex:1;z-index:1}
+  .hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;border-radius:20px;padding:4px 14px;font-size:11px;font-weight:800;letter-spacing:1px;margin-bottom:16px}
+  .hero h1{font-size:clamp(24px,4vw,42px);font-weight:900;line-height:1.15;margin-bottom:12px}
+  .hero h1 span{background:var(--gradFull);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{font-size:15px;color:var(--muted);margin-bottom:24px;max-width:480px;line-height:1.6}
+  .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{padding:12px 24px;border-radius:12px;font-weight:700;font-size:14px;border:none;transition:all 0.2s}
+  .btn-primary{background:var(--grad);color:#fff}
+  .btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
+  .btn-outline{background:transparent;border:2px solid var(--border2);color:var(--text)}
+  .btn-outline:hover{border-color:var(--red);color:var(--red)}
+  .hero-visual{position:absolute;right:40px;top:50%;transform:translateY(-50%);font-size:120px;opacity:0.15;pointer-events:none}
+
+  /* ── SECTION HEADERS ── */
+  .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .sec-head h2{font-size:18px;font-weight:800}
+  .sec-head h2 .dot{color:var(--red)}
+  .see-all{font-size:13px;color:var(--red);font-weight:600}
+  .see-all:hover{text-decoration:underline}
+
+  /* ── CATEGORY CHIPS ── */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px}
+  .chips::-webkit-scrollbar{height:0}
+  .chip{
+    flex-shrink:0;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;
+    background:var(--card2);border:1px solid var(--border);color:var(--muted);
+    transition:all 0.2s;white-space:nowrap;
+  }
+  .chip:hover,.chip.active{background:var(--red);border-color:var(--red);color:#fff;cursor:pointer}
+
+  /* ── VIDEO GRID ── */
+  .video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-bottom:32px}
+  .video-card{background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+  .video-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+  .vc-thumb{
+    height:160px;background:linear-gradient(135deg,var(--surface),var(--card2));
+    display:flex;align-items:center;justify-content:center;font-size:56px;
+    position:relative;overflow:hidden;
+  }
+  .vc-thumb:hover .vc-play{opacity:1}
+  .vc-play{
+    position:absolute;width:50px;height:50px;background:rgba(255,0,51,0.9);
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:20px;opacity:0;transition:opacity 0.2s;pointer-events:none;
+  }
+  .vc-duration{position:absolute;bottom:8px;right:8px;background:#000000cc;color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
+  .vc-live{position:absolute;bottom:8px;right:8px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:6px;padding:3px 8px}
+  .vc-premium{position:absolute;top:8px;left:8px;background:var(--gold);color:#000;font-size:10px;font-weight:800;border-radius:6px;padding:2px 8px}
+  .vc-lang{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);color:#fff;font-size:10px;border-radius:6px;padding:2px 7px}
+  .vc-info{padding:14px}
+  .vc-title{font-size:14px;font-weight:700;line-height:1.4;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .vc-meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}
+  .vc-channel{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-bottom:6px}
+  .vc-avatar{width:22px;height:22px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0}
+
+  /* ── SHORTS ROW ── */
+  .shorts-row{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;margin-bottom:32px}
+  .shorts-row::-webkit-scrollbar{height:4px}
+  .short-card{
+    flex-shrink:0;width:160px;height:280px;border-radius:16px;overflow:hidden;
+    background:linear-gradient(180deg,var(--card2),var(--surface));
+    border:1px solid var(--border);cursor:pointer;position:relative;transition:all 0.2s;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .short-card:hover{transform:scale(1.04);border-color:var(--red)}
+  .short-emoji{font-size:52px;margin-bottom:8px}
+  .short-title{font-size:12px;font-weight:700;text-align:center;padding:0 10px;color:var(--text)}
+  .short-views{position:absolute;bottom:10px;font-size:11px;color:var(--muted)}
+  .short-badge{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;font-size:9px;font-weight:800;border-radius:6px;padding:2px 7px}
+
+  /* ── TRENDING ROW ── */
+  .trending-list{display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+  .trend-item{
+    display:flex;gap:14px;align-items:center;background:var(--card);
+    border-radius:14px;padding:14px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;
+  }
+  .trend-item:hover{border-color:var(--border2);background:var(--card2)}
+  .trend-num{font-size:20px;font-weight:900;color:var(--dim);width:30px;flex-shrink:0;text-align:center}
+  .trend-thumb{width:100px;height:64px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0}
+  .trend-info{flex:1;min-width:0}
+  .trend-title{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+  .trend-meta{font-size:12px;color:var(--muted)}
+  .trend-views{font-size:13px;font-weight:700;color:var(--gold);flex-shrink:0}
+
+  /* ── MUSIC PAGE ── */
+  .music-player-wrap{background:var(--card);border-radius:20px;padding:28px;border:1px solid var(--border);margin-bottom:24px}
+  .mp-cover{width:120px;height:120px;border-radius:16px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:52px;flex-shrink:0}
+  .mp-top{display:flex;gap:20px;align-items:center;margin-bottom:24px}
+  .mp-info h3{font-size:20px;font-weight:800;margin-bottom:4px}
+  .mp-info p{color:var(--muted);font-size:13px}
+  .mp-progress{height:5px;background:var(--card2);border-radius:3px;margin-bottom:8px;cursor:pointer}
+  .mp-bar{height:100%;background:var(--gradFull);border-radius:3px;width:35%;transition:width 0.3s}
+  .mp-times{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:16px}
+  .mp-controls{display:flex;justify-content:center;align-items:center;gap:16px}
+  .mp-btn{background:var(--card2);border:1px solid var(--border);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text);transition:all 0.2s}
+  .mp-btn:hover{background:var(--card);color:var(--text)}
+  .mp-play{background:var(--grad)!important;border-color:transparent!important;width:54px!important;height:54px!important;font-size:22px!important;color:#fff!important}
+  .track-list{display:flex;flex-direction:column;gap:8px}
+  .track-item{display:flex;align-items:center;gap:14px;background:var(--card);border-radius:12px;padding:12px 16px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+  .track-item:hover,.track-item.active{background:rgba(124,58,237,0.15);border-color:var(--purple)}
+  .track-emoji{font-size:28px}
+  .track-info{flex:1}
+  .track-title{font-size:13px;font-weight:700}
+  .track-artist{font-size:11px;color:var(--muted)}
+  .track-dur{font-size:11px;color:var(--dim)}
+  .playing-anim{color:var(--neon);font-size:16px}
+
+  /* ── LIVE PAGE ── */
+  .live-hero{background:linear-gradient(135deg,#1a0000,#0d0010);border:1px solid #ff003322;border-radius:20px;padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:24px}
+  .live-screen{flex:1;min-height:200px;background:#000;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+  .live-dot{width:12px;height:12px;border-radius:50%;background:var(--red);animation:pulse 1.5s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,0,51,0.6)}50%{box-shadow:0 0 0 10px rgba(255,0,51,0)}}
+  .live-info{width:280px;flex-shrink:0}
+  .live-info h2{font-size:20px;font-weight:800;margin-bottom:8px}
+  .live-viewers{font-size:13px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:6px}
+  .live-chat{background:var(--card2);border-radius:12px;padding:14px;height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+  .chat-msg{font-size:12px;line-height:1.5}
+  .chat-name{font-weight:700;color:var(--neon)}
+
+  /* ── SUBSCRIPTION PAGE ── */
+  .plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:32px}
+  .plan-card{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:28px;position:relative;overflow:hidden;transition:all 0.2s}
+  .plan-card:hover{transform:translateY(-4px)}
+  .plan-card.featured{border-color:var(--purple);background:rgba(124,58,237,0.08)}
+  .plan-badge{position:absolute;top:16px;right:-24px;background:var(--grad);color:#fff;font-size:10px;font-weight:800;padding:4px 36px;transform:rotate(45deg);transform-origin:center}
+  .plan-name{font-size:16px;font-weight:900;margin-bottom:4px}
+  .plan-price{font-size:32px;font-weight:900;margin-bottom:2px}
+  .plan-price span{font-size:14px;color:var(--muted);font-weight:400}
+  .plan-divider{height:1px;background:var(--border);margin:16px 0}
+  .plan-feature{display:flex;gap:8px;margin-bottom:10px;font-size:13px;align-items:flex-start}
+  .plan-feature .check{flex-shrink:0;margin-top:1px}
+  .plan-btn{width:100%;margin-top:20px;padding:12px;border-radius:12px;font-weight:800;font-size:14px;border:none;transition:all 0.2s}
+
+  /* ── ABOUT/CONTACT ── */
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+  .team-card{background:var(--card);border-radius:16px;padding:24px;text-align:center;border:1px solid var(--border)}
+  .team-avatar{width:70px;height:70px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff}
+  .contact-form{background:var(--card);border-radius:20px;padding:28px;border:1px solid var(--border);max-width:560px}
+  .form-row{margin-bottom:16px}
+  .form-label{font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;letter-spacing:0.5px}
+  .form-input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;font-family:inherit;transition:border-color 0.2s}
+  .form-input:focus{border-color:var(--red)}
+  textarea.form-input{resize:vertical;min-height:100px}
+
+  /* ── LOGIN PAGE ── */
+  .auth-wrap{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:40px 20px}
+  .auth-box{background:var(--card);border-radius:24px;padding:40px;width:100%;max-width:420px;border:1px solid var(--border2)}
+  .auth-logo{text-align:center;margin-bottom:28px}
+  .auth-tabs{display:flex;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:24px}
+  .auth-tab{flex:1;padding:9px;border:none;border-radius:8px;font-weight:700;font-size:13px;transition:all 0.2s;background:transparent;color:var(--muted)}
+  .auth-tab.active{background:var(--red);color:#fff}
+  .auth-form-section{display:none}
+  .auth-form-section.active{display:block}
+
+  /* ── UPLOAD PAGE ── */
+  .upload-zone{
+    border:2px dashed var(--border2);border-radius:20px;padding:48px 24px;
+    text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:20px;
+  }
+  .upload-zone:hover{border-color:var(--red);background:rgba(255,0,51,0.04)}
+  .upload-zone.drag{border-color:var(--neon);background:rgba(0,229,160,0.04)}
+
+  /* ── LANG SELECTOR ── */
+  .lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:24px}
+  .lang-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s}
+  .lang-card:hover,.lang-card.active{border-color:var(--red);background:rgba(255,0,51,0.08)}
+  .lang-card .flag{font-size:24px;margin-bottom:4px}
+  .lang-card .lname{font-size:12px;font-weight:700}
+  .lang-card .native{font-size:11px;color:var(--muted)}
+
+  /* ── PILLS / BADGES ── */
+  .pill{display:inline-flex;align-items:center;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap}
+
+  /* ── FOOTER ── */
+  .footer{background:var(--surface);border-top:1px solid var(--border);padding:40px 24px 20px;margin-top:40px}
+  .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:32px}
+  .footer-brand .name{font-size:22px;font-weight:900;background:var(--gradFull);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+  .footer-brand p{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px}
+  .footer-col h4{font-size:13px;font-weight:800;color:var(--text);margin-bottom:14px;letter-spacing:0.5px}
+  .footer-col a{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;transition:color 0.2s}
+  .footer-col a:hover{color:var(--red)}
+  .footer-social{display:flex;gap:10px;margin-top:14px}
+  .social-btn{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.2s}
+  .social-btn:hover{background:var(--red);border-color:var(--red)}
+  .footer-bottom{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted)}
+  .footer-langs{display:flex;gap:8px;flex-wrap:wrap}
+  .footer-langs span{font-size:11px;color:var(--dim);cursor:pointer;transition:color 0.2s}
+  .footer-langs span:hover{color:var(--red)}
+
+  /* ── STATS BAR ── */
+  .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+  .stat-box{background:var(--card);border-radius:14px;padding:20px;border:1px solid var(--border);text-align:center;position:relative;overflow:hidden}
+  .stat-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .stat-box.s1::before{background:var(--grad)}
+  .stat-box.s2::before{background:var(--grad2)}
+  .stat-box.s3::before{background:linear-gradient(90deg,var(--neon),var(--blue))}
+  .stat-box.s4::before{background:linear-gradient(90deg,var(--purple),var(--red))}
+  .stat-val{font-size:24px;font-weight:900;margin-bottom:4px}
+  .stat-lbl{font-size:11px;color:var(--muted)}
+
+  /* ── NOTIFICATION DOT ── */
+  .notif-dot{width:8px;height:8px;background:var(--red);border-radius:50%;flex-shrink:0}
+
+  /* ── MODAL ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:#000000cc;z-index:2000;align-items:center;justify-content:center;padding:20px}
+  .modal-overlay.open{display:flex}
+  .modal-box{background:var(--surface);border-radius:20px;width:100%;max-width:640px;border:1px solid var(--border2);overflow:hidden;animation:fadeIn 0.2s}
+  @keyframes fadeIn{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+  .modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .modal-body{padding:24px}
+  .modal-player{height:280px;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:768px){
+    .sidebar{display:none}
+    .sidebar.open{display:flex;position:fixed;top:60px;left:0;bottom:0;z-index:900;width:260px}
+    .hamburger{display:flex}
+    .nav-search{display:none}
+    .footer-grid{grid-template-columns:1fr 1fr}
+    .stats-bar{grid-template-columns:1fr 1fr}
+    .video-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+    .live-hero{flex-direction:column}
+    .live-info{width:100%}
+  }
+  @media(max-width:480px){
+    .footer-grid{grid-template-columns:1fr}
+    .stats-bar{grid-template-columns:1fr}
+    .hero{padding:24px}
+    .hero-visual{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-logo">
+    <div class="icon">▶</div>
+    <div class="name">MR Tube</div>
+  </div>
+  <div class="nav-search">
+    <input type="text" id="searchInput" placeholder="Search videos, music, podcasts..." onkeydown="if(event.key==='Enter')doSearch()"/>
+    <button onclick="doSearch()">🔍</button>
+  </div>
+  <div class="nav-right">
+    <select class="nav-lang" onchange="changeLang(this.value)" title="Select language">
+      <option value="en">🇮🇳 EN</option>
+      <option value="hi">हिंदी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="te">తెలుగు</option>
+      <option value="mr">मराठी</option>
+      <option value="bn">বাংলা</option>
+      <option value="gu">ગુજરાતી</option>
+      <option value="kn">ಕನ್ನಡ</option>
+      <option value="ml">മലയാളം</option>
+      <option value="pa">ਪੰਜਾਬੀ</option>
+      <option value="bho">भोजपुरी</option>
+      <option value="ne">नेपाली</option>
+    </select>
+    <button class="nav-btn" onclick="showPage('upload')">📤 Upload</button>
+    <button class="nav-btn primary" onclick="showPage('login')">Sign In</button>
+  </div>
+</nav>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-item active" onclick="showPage('home')"><span class="si-icon">🏠</span> Home</div>
+      <div class="sidebar-item" onclick="showPage('trending')"><span class="si-icon">🔥</span> Trending <span class="si-badge">HOT</span></div>
+      <div class="sidebar-item" onclick="showPage('shorts')"><span class="si-icon">⚡</span> Shorts</div>
+      <div class="sidebar-item" onclick="showPage('live')"><span class="si-icon">🔴</span> Live <span class="notif-dot"></span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">CONTENT</div>
+      <div class="sidebar-item" onclick="showPage('videos')"><span class="si-icon">🎬</span> Videos</div>
+      <div class="sidebar-item" onclick="showPage('music')"><span class="si-icon">🎵</span> Music</div>
+      <div class="sidebar-item" onclick="showPage('podcasts')"><span class="si-icon">🎙️</span> Podcasts</div>
+      <div class="sidebar-item" onclick="showPage('categories')"><span class="si-icon">🗂️</span> Categories</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">LANGUAGES</div>
+      <div class="sidebar-item" onclick="filterLang('hi')"><span class="si-icon">🇮🇳</span> Hindi</div>
+      <div class="sidebar-item" onclick="filterLang('ta')"><span class="si-icon">🎭</span> Tamil</div>
+      <div class="sidebar-item" onclick="filterLang('te')"><span class="si-icon">🌺</span> Telugu</div>
+      <div class="sidebar-item" onclick="filterLang('bn')"><span class="si-icon">🐯</span> Bengali</div>
+      <div class="sidebar-item" onclick="filterLang('mr')"><span class="si-icon">🏔️</span> Marathi</div>
+      <div class="sidebar-item" onclick="filterLang('kn')"><span class="si-icon">🌸</span> Kannada</div>
+      <div class="sidebar-item" onclick="filterLang('ml')"><span class="si-icon">🌴</span> Malayalam</div>
+      <div class="sidebar-item" onclick="filterLang('gu')"><span class="si-icon">🦁</span> Gujarati</div>
+      <div class="sidebar-item" onclick="filterLang('bho')"><span class="si-icon">🎺</span> Bhojpuri</div>
+      <div class="sidebar-item" onclick="filterLang('ne')"><span class="si-icon">🏔️</span> Nepali</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">MORE</div>
+      <div class="sidebar-item" onclick="showPage('subscription')"><span class="si-icon">💎</span> Subscription</div>
+      <div class="sidebar-item" onclick="showPage('upload')"><span class="si-icon">📤</span> Upload</div>
+      <div class="sidebar-item" onclick="showPage('about')"><span class="si-icon">ℹ️</span> About</div>
+      <div class="sidebar-item" onclick="showPage('contact')"><span class="si-icon">📩</span> Contact</div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main" id="main">
+
+    <!-- ══ HOME PAGE ══ -->
+    <div class="page active" id="page-home">
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-content">
+          <div class="hero-badge">🔴 LIVE NOW • 45.2M Watching</div>
+          <h1>Stream India's<br/><span>Best Entertainment</span></h1>
+          <p>Music, Movies, Podcasts & Live shows in Hindi, Tamil, Telugu, Bengali and 18+ Indian languages — all in one place.</p>
+          <div class="hero-btns">
+            <button class="btn btn-primary" onclick="showPage('videos')">▶ Watch Now</button>
+            <button class="btn btn-outline" onclick="showPage('subscription')">💎 Go Premium</button>
+          </div>
+        </div>
+        <div class="hero-visual">🎬</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar">
+        <div class="stat-box s1"><div class="stat-val">2.8Cr+</div><div class="stat-lbl">Active Users</div></div>
+        <div class="stat-box s2"><div class="stat-val">18L+</div><div class="stat-lbl">Videos & Songs</div></div>
+        <div class="stat-box s3"><div class="stat-val">24</div><div class="stat-lbl">Indian Languages</div></div>
+        <div class="stat-box s4"><div class="stat-val">4K UHD</div><div class="stat-lbl">Max Quality</div></div>
+      </div>
+
+      <!-- Category chips -->
+      <div class="chips">
+        <div class="chip active">All</div>
+        <div class="chip">🎵 Music</div>
+        <div class="chip">🎬 Movies</div>
+        <div class="chip">📺 Web Series</div>
+        <div class="chip">🎙️ Podcasts</div>
+        <div class="chip">🕉️ Devotional</div>
+        <div class="chip">😂 Comedy</div>
+        <div class="chip">📰 News</div>
+        <div class="chip">🏏 Sports</div>
+        <div class="chip">🎓 Education</div>
+        <div class="chip">🍳 Cooking</div>
+        <div class="chip">💃 Dance</div>
+      </div>
+
+      <!-- Trending Videos -->
+      <div class="sec-head"><h2>Trending <span class="dot">•</span> Videos</h2><a class="see-all" onclick="showPage('trending')">See all →</a></div>
+      <div class="video-grid">
+        <div class="video-card" onclick="openPlayer('Kesariya – Brahmastra','🎵','4:28','Arijit Singh','320M')">
+          <div class="vc-thumb" style="background:linear-gradient(135deg,#1a0030,#0d001a)">🎵<div class="vc-play">▶</div><div class="vc-duration">4:28</div><div class="vc-lang">Hindi</div></div>
+          <div class="vc-info"><div class="vc-channel"><div class="vc-avatar">AR</div>Arijit Singh</div><div class="vc-title">Kesariya – Brahmastra | Full Song</div><div class="vc-meta"><span>320M views</span><span>2 days ago</span></div></div>
+        </div>
+        <div class="video-card" onclick="openPlayer('Pushpa 2 – Sooseki','🎸','3:52','Devi Sri Prasad','180M')">
+          <div class="vc-thumb" style="background:linear-gradient(135deg,#1a0a00,#2a1000)">🎸<div class="vc-play">▶</div><div class="vc-duration">3:52</div><div class="vc-lang">Telugu</div><div class="vc-premium">PREMIUM</div></div>
+          <div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">DS</div>Devi Sri Prasad</div><div class="vc-title">Pushpa 2 – Sooseki Official Song</div><div class="vc-meta"><span>180M views</span><span>1 week ago</span></div></div>
+        </div>
+        <div class="video-card" onclick="openPlayer('Lo-Fi Beats 24/7 LIVE','🎧','LIVE','ChillWave','45.2M')">
+          <div class="vc-thumb" style="background:linear-gradient(135deg,#001a1a,#000d12)">🎧<div class="vc-play">▶</div><div class="vc-live">🔴 LIVE</div></div>
+          <div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#00e5a0,#3b82f6)">CW</div>ChillWave</div><div class="vc-title">Lo-Fi Beats to Study / Work 24/7</div><div class="vc-meta"><span>45.2M watching</span><span>Live now</span></div></div>
+        </div>
+        <div class="video-card" onclick="openPlayer('Super Singer Grand Final','🎤','2:14:00','Star Vijay','28M')">
+          <div class="vc-thumb" style="background:linear-gradient(135deg,#1a001a,#0d0025)">🎤<div class="vc-play">▶</div><div class="vc-duration">2:14:00</div><div class="vc-lang">Tamil</div></div>
+          <div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">SV</div>Star Vijay</div><div class="vc-title">Super Singer Grand Final 2025</div><div class="vc-meta"><span>28M views</span><span>3 days ago</span></div></div>
+        </div>
+        <div class="video-card" onclick="openPlayer('Mirzapur S3 Episode 1','🎬','58:24','Amazon MX','92M')">
+          <div class="vc-thumb" style="background:linear-gradient(135deg,#1a1000,#0f0800)">🎬<div class="vc-play">▶</div><div class="vc-duration">58:24</div><div class="vc-lang">Hindi</div><div class="vc-premium">PREMIUM</div></div>
+          <div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">MX</div>Amazon MX</div><div class="vc-title">Mirzapur Season 3 – Episode 1 Full</div><div class="vc-meta"><span>92M views</span><span>5 days ago</span></div></div>
+        </div>
+        <div class="video-card" onclick="openPlayer('Navratri Garba Live 2025','🥁','3:12:00','Falguni Pathak','14M')">
+          <div class="vc-thumb" style="background:linear-gradient(135deg,#1a0a00,#15001a)">🥁<div class="vc-play">▶</div><div class="vc-live">🔴 LIVE</div><div class="vc-lang">Gujarati</div></div>
+          <div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#f59e0b,#7c3aed)">FP</div>Falguni Pathak</div><div class="vc-title">Navratri Garba Live 2025 – Ahmedabad</div><div class="vc-meta"><span>14M watching</span><span>Live now</span></div></div>
+        </div>
+      </div>
+
+      <!-- Shorts -->
+      <div class="sec-head"><h2>Shorts <span class="dot">•</span> Quick Watch</h2><a class="see-all" onclick="showPage('shorts')">See all →</a></div>
+      <div class="shorts-row">
+        <div class="short-card" onclick="openPlayer('Funny Prank – Mumbai','😂','0:45','PrankBhai','8.2M')"><div class="short-emoji">😂</div><div class="short-title">Funny Prank – Mumbai</div><div class="short-views">8.2M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Dance Cover – Jhoome Jo Pathaan','💃','0:58','Shruti Dances','12M')"><div class="short-emoji">💃</div><div class="short-title">Dance Cover – Pathaan</div><div class="short-views">12M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Street Food Delhi','🍛','0:42','FoodieRaj','5.4M')"><div class="short-emoji">🍛</div><div class="short-title">Street Food Delhi</div><div class="short-views">5.4M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Cricket Six Highlights','🏏','0:38','Cricket Express','22M')"><div class="short-emoji">🏏</div><div class="short-title">Cricket Six Highlights</div><div class="short-views">22M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Carnatic Violin Solo','🎻','0:55','Amrita Plays','3.1M')"><div class="short-emoji">🎻</div><div class="short-title">Carnatic Violin Solo</div><div class="short-views">3.1M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Rangoli Art – Diwali','🎨','0:50','RangoliArt','7.8M')"><div class="short-emoji">🎨</div><div class="short-title">Rangoli Art – Diwali</div><div class="short-views">7.8M views</div><div class="short-badge">SHORT</div></div>
+      </div>
+
+      <!-- Music Section -->
+      <div class="sec-head"><h2>Music <span class="dot">•</span> Top Hits</h2><a class="see-all" onclick="showPage('music')">See all →</a></div>
+      <div class="video-grid">
+        <div class="video-card" onclick="openPlayer('Tum Hi Ho – Aashiqui 2','🎶','4:45','Arijit Singh','1.2B')"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a001a,#000a20)">🎶<div class="vc-play">▶</div><div class="vc-duration">4:45</div><div class="vc-lang">Hindi</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar">AR</div>Arijit Singh</div><div class="vc-title">Tum Hi Ho – Aashiqui 2 | Full Song</div><div class="vc-meta"><span>1.2B views</span><span>2022</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('Rowdy Baby – Maari 2','🎵','3:56','Dhanush & Sai Pallavi','800M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#001020,#001a10)">🎵<div class="vc-play">▶</div><div class="vc-duration">3:56</div><div class="vc-lang">Tamil</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#ec4899,#7c3aed)">SP</div>Sai Pallavi</div><div class="vc-title">Rowdy Baby – Maari 2 Official</div><div class="vc-meta"><span>800M views</span><span>2024</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('Oo Antava – Pushpa','💃','3:22','Samantha','540M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a0010,#0a0020)">💃<div class="vc-play">▶</div><div class="vc-duration">3:22</div><div class="vc-lang">Telugu</div><div class="vc-premium">PREMIUM</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#f59e0b,#ec4899)">SA</div>Samantha</div><div class="vc-title">Oo Antava – Pushpa Official</div><div class="vc-meta"><span>540M views</span><span>2023</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══ TRENDING PAGE ══ -->
+    <div class="page" id="page-trending">
+      <div class="sec-head"><h2>🔥 Trending <span class="dot">•</span> India</h2><span style="font-size:12px;color:var(--muted)">Updated every hour</span></div>
+      <div class="chips" style="margin-bottom:20px">
+        <div class="chip active">All India</div><div class="chip">Music</div><div class="chip">Movies</div><div class="chip">Sports</div><div class="chip">News</div><div class="chip">Comedy</div>
+      </div>
+      <div class="trending-list">
+        <div class="trend-item" onclick="openPlayer('Kesariya – Brahmastra','🎵','4:28','Arijit Singh','320M')"><div class="trend-num">#1</div><div class="trend-thumb">🎵</div><div class="trend-info"><div class="trend-title">Kesariya – Brahmastra | Full Song</div><div class="trend-meta">Arijit Singh · Hindi · Music</div></div><div class="trend-views">320M</div></div>
+        <div class="trend-item" onclick="openPlayer('Mirzapur S3 Ep1','🎬','58:24','Amazon MX','92M')"><div class="trend-num">#2</div><div class="trend-thumb">🎬</div><div class="trend-info"><div class="trend-title">Mirzapur Season 3 – Episode 1</div><div class="trend-meta">Amazon MX · Hindi · Web Series</div></div><div class="trend-views">92M</div></div>
+        <div class="trend-item" onclick="openPlayer('Lo-Fi Beats 24/7','🎧','LIVE','ChillWave','45.2M')"><div class="trend-num">#3</div><div class="trend-thumb">🎧</div><div class="trend-info"><div class="trend-title">Lo-Fi Beats to Study 24/7 LIVE</div><div class="trend-meta">ChillWave · English · Music</div></div><div class="trend-views">45.2M</div></div>
+        <div class="trend-item" onclick="openPlayer('Super Singer Grand Final','🎤','2:14:00','Star Vijay','28M')"><div class="trend-num">#4</div><div class="trend-thumb">🎤</div><div class="trend-info"><div class="trend-title">Super Singer Grand Final 2025</div><div class="trend-meta">Star Vijay · Tamil · Reality</div></div><div class="trend-views">28M</div></div>
+        <div class="trend-item" onclick="openPlayer('IPL 2025 Final Highlights','🏏','45:00','JioCinema','24M')"><div class="trend-num">#5</div><div class="trend-thumb">🏏</div><div class="trend-info"><div class="trend-title">IPL 2025 Final – Full Highlights</div><div class="trend-meta">JioCinema · Hindi · Sports</div></div><div class="trend-views">24M</div></div>
+        <div class="trend-item" onclick="openPlayer('Rowdy Baby – Maari 2','🎵','3:56','Sai Pallavi','800M')"><div class="trend-num">#6</div><div class="trend-thumb">🎵</div><div class="trend-info"><div class="trend-title">Rowdy Baby – Maari 2 Official</div><div class="trend-meta">Sai Pallavi · Tamil · Music</div></div><div class="trend-views">800M</div></div>
+        <div class="trend-item" onclick="openPlayer('Navratri Garba Live','🥁','LIVE','Falguni Pathak','14M')"><div class="trend-num">#7</div><div class="trend-thumb">🥁</div><div class="trend-info"><div class="trend-title">Navratri Garba Live 2025</div><div class="trend-meta">Falguni Pathak · Gujarati · Music</div></div><div class="trend-views">14M</div></div>
+        <div class="trend-item" onclick="openPlayer('Pawan Singh – Lollipop Lagelu','🎺','4:12','Pawan Singh','280M')"><div class="trend-num">#9</div><div class="trend-thumb">🎺</div><div class="trend-info"><div class="trend-title">Pawan Singh – Lollipop Lagelu Hit</div><div class="trend-meta">Pawan Singh · Bhojpuri · Music</div></div><div class="trend-views">280M</div></div>
+        <div class="trend-item" onclick="openPlayer('Resham Firiri – Nepali Folk','🏔️','5:20','Nepali Folk','42M')"><div class="trend-num">#10</div><div class="trend-thumb">🏔️</div><div class="trend-info"><div class="trend-title">Resham Firiri – Classic Nepali Folk</div><div class="trend-meta">Nepali Folk · Nepali · Music</div></div><div class="trend-views">42M</div></div>
+        <div class="trend-item" onclick="openPlayer('Oo Antava – Pushpa','💃','3:22','Samantha','540M')"><div class="trend-num">#8</div><div class="trend-thumb">💃</div><div class="trend-info"><div class="trend-title">Oo Antava – Pushpa Official</div><div class="trend-meta">Samantha · Telugu · Music</div></div><div class="trend-views">540M</div></div>
+      </div>
+    </div>
+
+    <!-- ══ VIDEOS PAGE ══ -->
+    <div class="page" id="page-videos">
+      <div class="sec-head"><h2>🎬 All Videos</h2></div>
+      <div class="chips" style="margin-bottom:20px">
+        <div class="chip active">All</div><div class="chip">Movies</div><div class="chip">Web Series</div><div class="chip">Short Films</div><div class="chip">Documentary</div><div class="chip">News</div><div class="chip">Comedy</div><div class="chip">Reality</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <input class="form-input" style="flex:1;max-width:400px" placeholder="🔍 Search videos..." type="text"/>
+        <select class="form-input" style="width:auto">
+          <option>All Languages</option><option>Hindi</option><option>Tamil</option><option>Telugu</option><option>Bengali</option><option>Marathi</option><option>Kannada</option><option>Malayalam</option><option>Gujarati</option>
+        </select>
+      </div>
+      <div class="video-grid">
+        <div class="video-card" onclick="openPlayer('Mirzapur S3 Ep1','🎬','58:24','Amazon MX','92M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a1000,#0f0800)">🎬<div class="vc-play">▶</div><div class="vc-duration">58:24</div><div class="vc-premium">PREMIUM</div><div class="vc-lang">Hindi</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">MX</div>Amazon MX</div><div class="vc-title">Mirzapur Season 3 – Episode 1</div><div class="vc-meta"><span>92M views</span><span>5 days ago</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('KGF Chapter 3 Teaser','🦁','3:12','Hombale Films','420M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a1000,#0a0500)">🦁<div class="vc-play">▶</div><div class="vc-duration">3:12</div><div class="vc-lang">Kannada</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#f59e0b,#78350f)">HF</div>Hombale Films</div><div class="vc-title">KGF Chapter 3 – Official Teaser</div><div class="vc-meta"><span>420M views</span><span>1 month ago</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('Super Singer Grand Final','🎤','2:14:00','Star Vijay','28M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a001a,#0d0025)">🎤<div class="vc-play">▶</div><div class="vc-duration">2:14:00</div><div class="vc-lang">Tamil</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:var(--grad)">SV</div>Star Vijay</div><div class="vc-title">Super Singer Grand Final 2025</div><div class="vc-meta"><span>28M views</span><span>3 days ago</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('IPL 2025 Final Highlights','🏏','45:00','JioCinema','24M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#001a00,#000d00)">🏏<div class="vc-play">▶</div><div class="vc-duration">45:00</div><div class="vc-lang">Hindi</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#00e5a0,#3b82f6)">JC</div>JioCinema</div><div class="vc-title">IPL 2025 Final – Full Highlights</div><div class="vc-meta"><span>24M views</span><span>1 week ago</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('Panchayat S4 Ep1','📺','48:10','TVF','18M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#001000,#001a0a)">📺<div class="vc-play">▶</div><div class="vc-duration">48:10</div><div class="vc-lang">Hindi</div><div class="vc-premium">PREMIUM</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:var(--grad2)">TV</div>TVF</div><div class="vc-title">Panchayat Season 4 – Episode 1</div><div class="vc-meta"><span>18M views</span><span>2 weeks ago</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('Navratri Garba Live','🥁','LIVE','Falguni Pathak','14M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a0a00,#15001a)">🥁<div class="vc-play">▶</div><div class="vc-live">🔴 LIVE</div><div class="vc-lang">Gujarati</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:var(--grad2)">FP</div>Falguni Pathak</div><div class="vc-title">Navratri Garba Live 2025</div><div class="vc-meta"><span>14M watching</span><span>Live now</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══ MUSIC PAGE ══ -->
+    <div class="page" id="page-music">
+      <div class="sec-head"><h2>🎵 Music Player</h2></div>
+      <div class="music-player-wrap">
+        <div class="mp-top">
+          <div class="mp-cover">🎵</div>
+          <div class="mp-info">
+            <div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">NOW PLAYING</div>
+            <h3 id="mp-title">Kesariya – Brahmastra</h3>
+            <p id="mp-artist">Arijit Singh · Hindi</p>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <span class="pill" style="background:rgba(124,58,237,0.2);color:var(--purple);border:1px solid rgba(124,58,237,0.3)">Bollywood</span>
+              <span class="pill" style="background:rgba(245,158,11,0.2);color:var(--gold);border:1px solid rgba(245,158,11,0.3)">Hindi</span>
+            </div>
+          </div>
+        </div>
+        <div class="mp-progress" onclick="seekMusic(event)"><div class="mp-bar" id="mp-bar"></div></div>
+        <div class="mp-times"><span id="mp-cur">1:32</span><span id="mp-tot">4:28</span></div>
+        <div class="mp-controls">
+          <button class="mp-btn" title="Shuffle">🔀</button>
+          <button class="mp-btn" onclick="prevTrack()">⏮</button>
+          <button class="mp-btn mp-play" onclick="togglePlay()" id="mp-playbtn">▶</button>
+          <button class="mp-btn" onclick="nextTrack()">⏭</button>
+          <button class="mp-btn" title="Repeat">🔁</button>
+        </div>
+      </div>
+      <div class="chips">
+        <div class="chip active">All</div><div class="chip">Hindi</div><div class="chip">Tamil</div><div class="chip">Telugu</div><div class="chip">Bengali</div><div class="chip">Punjabi</div><div class="chip">Kannada</div><div class="chip">Devotional</div>
+      </div>
+      <div class="track-list" id="trackList">
+        <div class="track-item active" onclick="playTrack(0)"><div class="track-emoji">🎵</div><div class="track-info"><div class="track-title">Kesariya – Brahmastra</div><div class="track-artist">Arijit Singh · Hindi</div></div><div class="track-dur">4:28</div><div class="playing-anim">♪</div></div>
+        <div class="track-item" onclick="playTrack(1)"><div class="track-emoji">🎶</div><div class="track-info"><div class="track-title">Tum Hi Ho – Aashiqui 2</div><div class="track-artist">Arijit Singh · Hindi</div></div><div class="track-dur">4:45</div></div>
+        <div class="track-item" onclick="playTrack(2)"><div class="track-emoji">💃</div><div class="track-info"><div class="track-title">Rowdy Baby – Maari 2</div><div class="track-artist">Sai Pallavi · Tamil</div></div><div class="track-dur">3:56</div></div>
+        <div class="track-item" onclick="playTrack(3)"><div class="track-emoji">🎸</div><div class="track-info"><div class="track-title">Sooseki – Pushpa 2</div><div class="track-artist">Devi Sri Prasad · Telugu</div></div><div class="track-dur">3:52</div></div>
+        <div class="track-item" onclick="playTrack(4)"><div class="track-emoji">🥁</div><div class="track-info"><div class="track-title">Garba Medley 2025</div><div class="track-artist">Falguni Pathak · Gujarati</div></div><div class="track-dur">5:12</div></div>
+        <div class="track-item" onclick="playTrack(5)"><div class="track-emoji">🎻</div><div class="track-info"><div class="track-title">Carnatic Evening Raga</div><div class="track-artist">L. Subramaniam · Kannada</div></div><div class="track-dur">8:30</div></div>
+        <div class="track-item" onclick="playTrack(6)"><div class="track-emoji">🪘</div><div class="track-info"><div class="track-title">Dhol Baaje – Punjab</div><div class="track-artist">Diljit Dosanjh · Punjabi</div></div><div class="track-dur">4:10</div></div>
+        <div class="track-item" onclick="playTrack(7)"><div class="track-emoji">🎺</div><div class="track-info"><div class="track-title">Lollipop Lagelu – Bhojpuri</div><div class="track-artist">Pawan Singh · Bhojpuri</div></div><div class="track-dur">4:12</div></div>
+        <div class="track-item" onclick="playTrack(8)"><div class="track-emoji">🏔️</div><div class="track-info"><div class="track-title">Resham Firiri</div><div class="track-artist">Nepali Folk · Nepali</div></div><div class="track-dur">5:20</div></div>
+      </div>
+    </div>
+
+    <!-- ══ SHORTS PAGE ══ -->
+    <div class="page" id="page-shorts">
+      <div class="sec-head"><h2>⚡ Shorts</h2><span style="font-size:12px;color:var(--muted)">Under 60 seconds</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px">
+        <div class="short-card" onclick="openPlayer('Funny Prank – Mumbai','😂','0:45','PrankBhai','8.2M')" style="height:280px"><div class="short-emoji">😂</div><div class="short-title">Funny Prank – Mumbai</div><div class="short-views">8.2M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Dance Cover – Pathaan','💃','0:58','Shruti','12M')" style="height:280px"><div class="short-emoji">💃</div><div class="short-title">Dance Cover – Pathaan</div><div class="short-views">12M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Street Food Delhi','🍛','0:42','FoodieRaj','5.4M')" style="height:280px"><div class="short-emoji">🍛</div><div class="short-title">Street Food Delhi</div><div class="short-views">5.4M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Cricket Six Highlights','🏏','0:38','CricketExpress','22M')" style="height:280px"><div class="short-emoji">🏏</div><div class="short-title">Cricket Six Highlights</div><div class="short-views">22M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Rangoli Art Diwali','🎨','0:50','RangoliArt','7.8M')" style="height:280px"><div class="short-emoji">🎨</div><div class="short-title">Rangoli Art – Diwali</div><div class="short-views">7.8M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Carnatic Violin','🎻','0:55','AmritaPlays','3.1M')" style="height:280px"><div class="short-emoji">🎻</div><div class="short-title">Carnatic Violin Solo</div><div class="short-views">3.1M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Biryani Recipe Quick','🍲','0:59','ChefKumar','9.6M')" style="height:280px"><div class="short-emoji">🍲</div><div class="short-title">Biryani Recipe Quick</div><div class="short-views">9.6M views</div><div class="short-badge">SHORT</div></div>
+        <div class="short-card" onclick="openPlayer('Baby Shower Traditions','👶','0:48','FamilyVibes','4.2M')" style="height:280px"><div class="short-emoji">👶</div><div class="short-title">Baby Shower Traditions</div><div class="short-views">4.2M views</div><div class="short-badge">SHORT</div></div>
+      </div>
+    </div>
+
+    <!-- ══ LIVE PAGE ══ -->
+    <div class="page" id="page-live">
+      <div class="live-hero">
+        <div class="live-screen">
+          <div style="display:flex;align-items:center;gap:10px"><div class="live-dot"></div><span style="font-size:13px;font-weight:700;color:var(--red)">LIVE</span></div>
+          <div style="font-size:60px">🎧</div>
+          <div style="font-size:14px;color:var(--muted)">Lo-Fi Beats 24/7</div>
+        </div>
+        <div class="live-info">
+          <div style="display:inline-flex;gap:6px;align-items:center;background:var(--red);color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:800;margin-bottom:12px"><div class="live-dot" style="width:8px;height:8px"></div>LIVE NOW</div>
+          <h2>Lo-Fi Beats to Study / Work 24/7</h2>
+          <div class="live-viewers">👁️ 45.2M watching worldwide</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Chill lo-fi beats, hip-hop & jazz to relax, study and work. No copyright music.</div>
+          <div class="live-chat">
+            <div class="chat-msg"><span class="chat-name">Riya_Mumbai: </span>Love this stream 🎵</div>
+            <div class="chat-msg"><span class="chat-name">Arjun_Delhi: </span>Studying for JEE, this helps!</div>
+            <div class="chat-msg"><span class="chat-name">Priya_Chennai: </span>Amazing vibes 🌙</div>
+            <div class="chat-msg"><span class="chat-name">Karan_Pune: </span>Best channel on MR Tube!</div>
+            <div class="chat-msg"><span class="chat-name">Sneha_Hyd: </span>Working late, this is perfect</div>
+            <div class="chat-msg"><span class="chat-name">Vikram_Blr: </span>🎵🎵🎵</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-head"><h2>More <span class="dot">•</span> Live Now</h2></div>
+      <div class="video-grid">
+        <div class="video-card" onclick="openPlayer('Navratri Garba Live','🥁','LIVE','Falguni Pathak','14M')"><div class="vc-thumb">🥁<div class="vc-play">▶</div><div class="vc-live">🔴 LIVE</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar">FP</div>Falguni Pathak</div><div class="vc-title">Navratri Garba Live 2025</div><div class="vc-meta"><span>14M watching</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('SPB Memorial Concert','🎤','LIVE','SPB Foundation','2.1M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a001a,#000020)">🎤<div class="vc-play">▶</div><div class="vc-live">🔴 LIVE</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:var(--grad)">SP</div>SPB Foundation</div><div class="vc-title">SPB Memorial Concert 2025</div><div class="vc-meta"><span>2.1M watching</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('ISRO Launch Live','🚀','LIVE','ISRO Official','8.4M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#001020,#000510)">🚀<div class="vc-play">▶</div><div class="vc-live">🔴 LIVE</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#3b82f6,#00e5a0)">IS</div>ISRO Official</div><div class="vc-title">ISRO Satellite Launch – Live</div><div class="vc-meta"><span>8.4M watching</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══ PODCASTS PAGE ══ -->
+    <div class="page" id="page-podcasts">
+      <div class="sec-head"><h2>🎙️ Podcasts</h2></div>
+      <div class="chips"><div class="chip active">All</div><div class="chip">Technology</div><div class="chip">Business</div><div class="chip">Health</div><div class="chip">Crime</div><div class="chip">Comedy</div><div class="chip">Spirituality</div><div class="chip">Politics</div></div>
+      <div class="video-grid">
+        <div class="video-card" onclick="openPlayer('Tech Talks Daily – E142','💻','48:22','Sarah Chen','1.2M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#001020,#00050f)">💻<div class="vc-play">▶</div><div class="vc-duration">48:22</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:var(--grad3,#3b82f6)">SC</div>Sarah Chen</div><div class="vc-title">Tech Talks Daily – Episode 142: AI in India</div><div class="vc-meta"><span>1.2M plays</span><span>2 days ago</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('True Crime India – E89','🔍','1:02:10','Mark Davis','890K')"><div class="vc-thumb" style="background:linear-gradient(135deg,#100005,#050010)">🔍<div class="vc-play">▶</div><div class="vc-duration">1:02:10</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:var(--grad)">MD</div>Mark Davis</div><div class="vc-title">True Crime India – Episode 89</div><div class="vc-meta"><span>890K plays</span><span>3 days ago</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('Mind & Body Reset – E67','🧘','52:14','Dr. Priya K.','670K')"><div class="vc-thumb" style="background:linear-gradient(135deg,#001010,#000a08)">🧘<div class="vc-play">▶</div><div class="vc-duration">52:14</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:linear-gradient(135deg,#00e5a0,#3b82f6)">PK</div>Dr. Priya K.</div><div class="vc-title">Mind & Body Reset – Ep 67: Sleep & Stress</div><div class="vc-meta"><span>670K plays</span><span>1 week ago</span></div></div></div>
+        <div class="video-card" onclick="openPlayer('Startup Founders India – E203','🚀','1:14:30','Alex Moore','2.1M')"><div class="vc-thumb" style="background:linear-gradient(135deg,#101000,#080800)">🚀<div class="vc-play">▶</div><div class="vc-duration">1:14:30</div><div class="vc-premium">PREMIUM</div></div><div class="vc-info"><div class="vc-channel"><div class="vc-avatar" style="background:var(--grad2)">AM</div>Alex Moore</div><div class="vc-title">Startup Founders India – Ep 203</div><div class="vc-meta"><span>2.1M plays</span><span>5 days ago</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══ CATEGORIES PAGE ══ -->
+    <div class="page" id="page-categories">
+      <div class="sec-head"><h2>🗂️ Browse Categories</h2></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:32px">
+        <div class="video-card" onclick="showPage('videos')" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a0010,#0d0025);height:100px;font-size:42px">🎬</div><div class="vc-info"><div class="vc-title">Movies</div><div class="vc-meta"><span>12,400+ titles</span></div></div></div>
+        <div class="video-card" onclick="showPage('music')" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#001020,#000a20);height:100px;font-size:42px">🎵</div><div class="vc-info"><div class="vc-title">Music</div><div class="vc-meta"><span>8.2M+ songs</span></div></div></div>
+        <div class="video-card" onclick="showPage('podcasts')" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#101000,#0a0800);height:100px;font-size:42px">🎙️</div><div class="vc-info"><div class="vc-title">Podcasts</div><div class="vc-meta"><span>48,000+ episodes</span></div></div></div>
+        <div class="video-card" onclick="showPage('live')" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a0000,#0d0000);height:100px;font-size:42px">🔴</div><div class="vc-info"><div class="vc-title">Live</div><div class="vc-meta"><span>24/7 streams</span></div></div></div>
+        <div class="video-card" onclick="showPage('shorts')" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#001a00,#000d00);height:100px;font-size:42px">⚡</div><div class="vc-info"><div class="vc-title">Shorts</div><div class="vc-meta"><span>2M+ shorts</span></div></div></div>
+        <div class="video-card" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#0a1a00,#050d00);height:100px;font-size:42px">🕉️</div><div class="vc-info"><div class="vc-title">Devotional</div><div class="vc-meta"><span>All religions</span></div></div></div>
+        <div class="video-card" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a1000,#0d0800);height:100px;font-size:42px">😂</div><div class="vc-info"><div class="vc-title">Comedy</div><div class="vc-meta"><span>Stand-up, Skits</span></div></div></div>
+        <div class="video-card" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#001010,#000808);height:100px;font-size:42px">🏏</div><div class="vc-info"><div class="vc-title">Sports</div><div class="vc-meta"><span>Cricket, Football</span></div></div></div>
+        <div class="video-card" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#10001a,#080010);height:100px;font-size:42px">🎓</div><div class="vc-info"><div class="vc-title">Education</div><div class="vc-meta"><span>All subjects</span></div></div></div>
+        <div class="video-card" style="cursor:pointer"><div class="vc-thumb" style="background:linear-gradient(135deg,#1a0808,#0d0404);height:100px;font-size:42px">📰</div><div class="vc-info"><div class="vc-title">News</div><div class="vc-meta"><span>Regional & National</span></div></div></div>
+      </div>
+      <!-- Language Section -->
+      <div class="sec-head"><h2>🌐 Browse by Language</h2></div>
+      <div class="lang-grid">
+        <div class="lang-card active" onclick="filterLang('hi')"><div class="flag">🇮🇳</div><div class="lname">Hindi</div><div class="native">हिंदी</div></div>
+        <div class="lang-card" onclick="filterLang('ta')"><div class="flag">🎭</div><div class="lname">Tamil</div><div class="native">தமிழ்</div></div>
+        <div class="lang-card" onclick="filterLang('te')"><div class="flag">🌺</div><div class="lname">Telugu</div><div class="native">తెలుగు</div></div>
+        <div class="lang-card" onclick="filterLang('bn')"><div class="flag">🐯</div><div class="lname">Bengali</div><div class="native">বাংলা</div></div>
+        <div class="lang-card" onclick="filterLang('mr')"><div class="flag">🏔️</div><div class="lname">Marathi</div><div class="native">मराठी</div></div>
+        <div class="lang-card" onclick="filterLang('kn')"><div class="flag">🌸</div><div class="lname">Kannada</div><div class="native">ಕನ್ನಡ</div></div>
+        <div class="lang-card" onclick="filterLang('ml')"><div class="flag">🌴</div><div class="lname">Malayalam</div><div class="native">മലയാളം</div></div>
+        <div class="lang-card" onclick="filterLang('gu')"><div class="flag">🦁</div><div class="lname">Gujarati</div><div class="native">ગુજરાતી</div></div>
+        <div class="lang-card" onclick="filterLang('pa')"><div class="flag">🌾</div><div class="lname">Punjabi</div><div class="native">ਪੰਜਾਬੀ</div></div>
+        <div class="lang-card" onclick="filterLang('or')"><div class="flag">🏛️</div><div class="lname">Odia</div><div class="native">ଓଡ଼ିଆ</div></div>
+        <div class="lang-card" onclick="filterLang('as')"><div class="flag">🌿</div><div class="lname">Assamese</div><div class="native">অসমীয়া</div></div>
+        <div class="lang-card" onclick="filterLang('ur')"><div class="flag">🌙</div><div class="lname">Urdu</div><div class="native">اردو</div></div>
+        <div class="lang-card" onclick="filterLang('bho')"><div class="flag">🎺</div><div class="lname">Bhojpuri</div><div class="native">भोजपुरी</div></div>
+        <div class="lang-card" onclick="filterLang('ne')"><div class="flag">🏔️</div><div class="lname">Nepali</div><div class="native">नेपाली</div></div>
+      </div>
+    </div>
+
+    <!-- ══ SUBSCRIPTION PAGE ══ -->
+    <div class="page" id="page-subscription">
+      <div style="text-align:center;margin-bottom:32px">
+        <h2 style="font-size:28px;font-weight:900;margin-bottom:8px">Choose Your <span style="background:var(--gradFull);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Plan</span></h2>
+        <p style="color:var(--muted);font-size:15px">Unlock the full MR Tube experience — music, videos, podcasts in every Indian language</p>
+      </div>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name" style="color:var(--muted)">Free</div>
+          <div class="plan-price">₹0<span>/month</span></div>
+          <div class="plan-divider"></div>
+          <div class="plan-feature"><span class="check">✓</span><span>10 videos per day</span></div>
+          <div class="plan-feature"><span class="check">✓</span><span>SD quality (480p)</span></div>
+          <div class="plan-feature"><span class="check">✓</span><span>All Indian languages</span></div>
+          <div class="plan-feature" style="opacity:0.4"><span>✗</span><span>Ads between videos</span></div>
+          <div class="plan-feature" style="opacity:0.4"><span>✗</span><span>Offline download</span></div>
+          <button class="plan-btn" style="background:var(--card2);color:var(--text);border:1px solid var(--border)">Current Plan</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name" style="color:var(--blue)">Basic</div>
+          <div class="plan-price" style="color:var(--blue)">₹99<span>/month</span></div>
+          <div class="plan-divider"></div>
+          <div class="plan-feature"><span class="check" style="color:var(--blue)">✓</span><span>Unlimited videos</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--blue)">✓</span><span>HD quality (1080p)</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--blue)">✓</span><span>No ads</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--blue)">✓</span><span>All podcasts</span></div>
+          <div class="plan-feature" style="opacity:0.4"><span>✗</span><span>Offline download</span></div>
+          <button class="plan-btn" style="background:var(--blue);color:#fff" onclick="alert('Redirecting to payment...')">Get Basic</button>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-badge">POPULAR</div>
+          <div class="plan-name" style="color:var(--purple)">Premium</div>
+          <div class="plan-price" style="color:var(--purple)">₹199<span>/month</span></div>
+          <div class="plan-divider"></div>
+          <div class="plan-feature"><span class="check" style="color:var(--purple)">✓</span><span>Everything in Basic</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--purple)">✓</span><span>4K Ultra HD quality</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--purple)">✓</span><span>Offline download</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--purple)">✓</span><span>Early access content</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--purple)">✓</span><span>Full music library</span></div>
+          <button class="plan-btn" style="background:var(--grad);color:#fff" onclick="alert('Redirecting to payment...')">Get Premium ⭐</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name" style="color:var(--gold)">Ultimate</div>
+          <div class="plan-price" style="color:var(--gold)">₹299<span>/month</span></div>
+          <div class="plan-divider"></div>
+          <div class="plan-feature"><span class="check" style="color:var(--gold)">✓</span><span>Everything in Premium</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--gold)">✓</span><span>Family sharing (5 users)</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--gold)">✓</span><span>Exclusive content</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--gold)">✓</span><span>AI recommendations</span></div>
+          <div class="plan-feature"><span class="check" style="color:var(--gold)">✓</span><span>Priority support 24/7</span></div>
+          <button class="plan-btn" style="background:var(--grad2);color:#fff" onclick="alert('Redirecting to payment...')">Get Ultimate 👑</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:20px;font-size:13px;color:var(--muted)">
+        💳 Pay via UPI, Debit/Credit Card, Net Banking, Wallets · Cancel anytime · No hidden charges
+      </div>
+    </div>
+
+    <!-- ══ UPLOAD PAGE ══ -->
+    <div class="page" id="page-upload">
+      <div class="sec-head"><h2>📤 Upload Content</h2></div>
+      <div class="upload-zone" id="uploadZone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept="video/*,audio/*" style="display:none" onchange="handleFileSelect(event)"/>
+        <div style="font-size:56px;margin-bottom:16px">☁️</div>
+        <div style="font-size:18px;font-weight:800;margin-bottom:8px">Drag & Drop your file here</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px">MP4, MOV, AVI, MP3, WAV, M4A — max 10GB</div>
+        <button class="btn btn-primary" onclick="event.stopPropagation()">Browse Files</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="form-row"><label class="form-label">TITLE *</label><input class="form-input" placeholder="Enter video/music title"/></div>
+        <div class="form-row"><label class="form-label">CONTENT TYPE</label><select class="form-input"><option>Video</option><option>Music</option><option>Podcast</option><option>Short</option></select></div>
+        <div class="form-row"><label class="form-label">LANGUAGE</label><select class="form-input"><option>Hindi</option><option>Tamil</option><option>Telugu</option><option>Bengali</option><option>Marathi</option><option>Kannada</option><option>Malayalam</option><option>Gujarati</option><option>Punjabi</option><option>Bhojpuri</option><option>Nepali</option><option>English</option></select></div>
+        <div class="form-row"><label class="form-label">CATEGORY</label><select class="form-input"><option>Music</option><option>Movies</option><option>Web Series</option><option>Podcast</option><option>Comedy</option><option>Sports</option><option>Education</option><option>Devotional</option><option>News</option></select></div>
+      </div>
+      <div class="form-row"><label class="form-label">DESCRIPTION</label><textarea class="form-input" rows="3" placeholder="Describe your content..."></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <div style="display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;flex:1">
+          <span style="font-size:20px">💎</span>
+          <div><div style="font-size:13px;font-weight:700">Premium Content</div><div style="font-size:11px;color:var(--muted)">Paid subscribers only</div></div>
+          <input type="checkbox" style="margin-left:auto;width:18px;height:18px;accent-color:var(--gold)"/>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;flex:1">
+          <span style="font-size:20px">🔞</span>
+          <div><div style="font-size:13px;font-weight:700">Age Restricted</div><div style="font-size:11px;color:var(--muted)">18+ content</div></div>
+          <input type="checkbox" style="margin-left:auto;width:18px;height:18px;accent-color:var(--red)"/>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:20px;width:100%;padding:14px;font-size:16px" onclick="alert('Connecting to Cloudinary... Please set up your credentials in settings.')">📤 Upload Now</button>
+    </div>
+
+    <!-- ══ ABOUT PAGE ══ -->
+    <div class="page" id="page-about">
+      <div class="hero" style="margin-bottom:28px">
+        <div class="hero-content">
+          <div class="hero-badge">🇮🇳 Made in India</div>
+          <h1>About <span>MR Tube</span></h1>
+          <p>India's premier streaming platform — bringing the best music, movies, podcasts and live entertainment in 22+ Indian languages to 280 million+ users.</p>
+        </div>
+        <div class="hero-visual">🇮🇳</div>
+      </div>
+      <div class="stats-bar" style="margin-bottom:28px">
+        <div class="stat-box s1"><div class="stat-val">2.8Cr+</div><div class="stat-lbl">Monthly Users</div></div>
+        <div class="stat-box s2"><div class="stat-val">24</div><div class="stat-lbl">Indian Languages</div></div>
+        <div class="stat-box s3"><div class="stat-val">18L+</div><div class="stat-lbl">Content Library</div></div>
+        <div class="stat-box s4"><div class="stat-val">2020</div><div class="stat-lbl">Founded</div></div>
+      </div>
+      <div class="sec-head"><h2>Our <span class="dot">•</span> Mission</h2></div>
+      <div style="background:var(--card);border-radius:20px;padding:28px;border:1px solid var(--border);margin-bottom:28px;line-height:1.8;color:var(--muted);font-size:15px">
+        MR Tube was built with one mission — to make every Indian's cultural content accessible to the world. We believe language should never be a barrier to entertainment. From classical Carnatic music to Punjabi bhangra, from Marathi natak to Tamil cinema — MR Tube is home to it all.
+      </div>
+      <div class="sec-head"><h2>Leadership <span class="dot">•</span> Team</h2></div>
+      <div class="team-grid">
+        <div class="team-card"><div class="team-avatar" style="background:var(--grad)">MR</div><div style="font-weight:800;margin-bottom:4px">MR (Founder)</div><div style="font-size:12px;color:var(--muted)">CEO & Visionary</div></div>
+        <div class="team-card"><div class="team-avatar" style="background:var(--grad2)">AK</div><div style="font-weight:800;margin-bottom:4px">Ananya Kumar</div><div style="font-size:12px;color:var(--muted)">Chief Technology Officer</div></div>
+        <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#00e5a0,#3b82f6)">RS</div><div style="font-weight:800;margin-bottom:4px">Rahul Shah</div><div style="font-size:12px;color:var(--muted)">Head of Content</div></div>
+        <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#ec4899,#7c3aed)">PR</div><div style="font-weight:800;margin-bottom:4px">Priya Rao</div><div style="font-size:12px;color:var(--muted)">Head of Marketing</div></div>
+      </div>
+    </div>
+
+    <!-- ══ CONTACT PAGE ══ -->
+    <div class="page" id="page-contact">
+      <div class="sec-head"><h2>📩 Contact Us</h2></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div>
+          <div class="contact-form">
+            <div class="form-row"><label class="form-label">YOUR NAME</label><input class="form-input" placeholder="Rahul Sharma"/></div>
+            <div class="form-row"><label class="form-label">EMAIL ADDRESS</label><input class="form-input" type="email" placeholder="rahul@email.com"/></div>
+            <div class="form-row"><label class="form-label">SUBJECT</label><select class="form-input"><option>General Inquiry</option><option>Technical Support</option><option>Content Removal</option><option>Partnership</option><option>Subscription Issue</option><option>Advertise with us</option></select></div>
+            <div class="form-row"><label class="form-label">MESSAGE</label><textarea class="form-input" rows="5" placeholder="How can we help you?"></textarea></div>
+            <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px" onclick="alert('Message sent! We will reply within 24 hours.')">Send Message →</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="background:var(--card);border-radius:16px;padding:20px;border:1px solid var(--border)">
+            <div style="font-size:24px;margin-bottom:10px">📧</div>
+            <div style="font-weight:700;margin-bottom:4px">Email Support</div>
+            <div style="font-size:13px;color:var(--muted)">support@mrtube.in<br/>business@mrtube.in</div>
+          </div>
+          <div style="background:var(--card);border-radius:16px;padding:20px;border:1px solid var(--border)">
+            <div style="font-size:24px;margin-bottom:10px">📱</div>
+            <div style="font-weight:700;margin-bottom:4px">Phone Support</div>
+            <div style="font-size:13px;color:var(--muted)">1800-MR-TUBE (Toll Free)<br/>Mon–Sat, 9AM–6PM IST</div>
+          </div>
+          <div style="background:var(--card);border-radius:16px;padding:20px;border:1px solid var(--border)">
+            <div style="font-size:24px;margin-bottom:10px">🏢</div>
+            <div style="font-weight:700;margin-bottom:4px">Head Office</div>
+            <div style="font-size:13px;color:var(--muted)">MR Tube Media Pvt. Ltd.<br/>Cyber City, Gurugram 122002<br/>Haryana, India</div>
+          </div>
+          <div style="background:var(--card);border-radius:16px;padding:20px;border:1px solid var(--border)">
+            <div style="font-weight:700;margin-bottom:12px">Follow Us</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <a href="#" class="social-btn">📘</a><a href="#" class="social-btn">📸</a><a href="#" class="social-btn">🐦</a><a href="#" class="social-btn">▶</a><a href="#" class="social-btn">💼</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ LOGIN PAGE ══ -->
+    <div class="page" id="page-login">
+      <div class="auth-wrap">
+        <div class="auth-box">
+          <div class="auth-logo">
+            <div style="font-size:40px;margin-bottom:8px">▶</div>
+            <div style="font-size:28px;font-weight:900;background:var(--gradFull);-webkit-background-clip:text;-webkit-text-fill-color:transparent">MR Tube</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px">India's streaming home</div>
+          </div>
+          <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuth('signin')">Sign In</button>
+            <button class="auth-tab" onclick="switchAuth('signup')">Sign Up</button>
+          </div>
+          <div class="auth-form-section active" id="auth-signin">
+            <div class="form-row"><label class="form-label">EMAIL / PHONE</label><input class="form-input" placeholder="Email or mobile number"/></div>
+            <div class="form-row"><label class="form-label">PASSWORD</label><input class="form-input" type="password" placeholder="••••••••"/></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:20px"><label style="display:flex;gap:6px;align-items:center;color:var(--muted);cursor:pointer"><input type="checkbox"/> Remember me</label><a href="#" style="color:var(--red)">Forgot password?</a></div>
+            <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px" onclick="alert('Welcome back to MR Tube!')">Sign In →</button>
+            <div style="text-align:center;margin:20px 0;color:var(--dim);font-size:12px">OR CONTINUE WITH</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+              <button class="btn btn-outline" onclick="alert('Google sign-in')" style="padding:10px;font-size:13px">🔵 Google</button>
+              <button class="btn btn-outline" onclick="alert('Facebook sign-in')" style="padding:10px;font-size:13px">📘 Facebook</button>
+              <button class="btn btn-outline" onclick="alert('Apple sign-in')" style="padding:10px;font-size:13px">🍎 Apple</button>
+            </div>
+          </div>
+          <div class="auth-form-section" id="auth-signup">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-row"><label class="form-label">FIRST NAME</label><input class="form-input" placeholder="Rahul"/></div>
+              <div class="form-row"><label class="form-label">LAST NAME</label><input class="form-input" placeholder="Sharma"/></div>
+            </div>
+            <div class="form-row"><label class="form-label">EMAIL ADDRESS</label><input class="form-input" type="email" placeholder="rahul@email.com"/></div>
+            <div class="form-row"><label class="form-label">MOBILE NUMBER</label><input class="form-input" placeholder="+91 98765 43210"/></div>
+            <div class="form-row"><label class="form-label">PASSWORD</label><input class="form-input" type="password" placeholder="Min 8 characters"/></div>
+            <div class="form-row"><label class="form-label">PREFERRED LANGUAGE</label><select class="form-input"><option>Hindi</option><option>Tamil</option><option>Telugu</option><option>Bengali</option><option>Marathi</option><option>Kannada</option><option>Malayalam</option><option>Gujarati</option><option>Punjabi</option><option>Bhojpuri</option><option>Nepali</option><option>English</option></select></div>
+            <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px;margin-top:4px" onclick="alert('Account created! Welcome to MR Tube!')">Create Account 🎉</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="name">MR Tube</div>
+      <p>India's largest streaming platform for music, videos, podcasts & live entertainment in all Indian languages.</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn">📘</a><a href="#" class="social-btn">📸</a><a href="#" class="social-btn">🐦</a><a href="#" class="social-btn">▶</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>PLATFORM</h4>
+      <a onclick="showPage('home')">Home</a>
+      <a onclick="showPage('trending')">Trending</a>
+      <a onclick="showPage('videos')">Videos</a>
+      <a onclick="showPage('music')">Music</a>
+      <a onclick="showPage('live')">Live</a>
+      <a onclick="showPage('shorts')">Shorts</a>
+    </div>
+    <div class="footer-col">
+      <h4>COMPANY</h4>
+      <a onclick="showPage('about')">About Us</a>
+      <a onclick="showPage('contact')">Contact</a>
+      <a href="#">Careers</a>
+      <a href="#">Press</a>
+      <a href="#">Advertise</a>
+    </div>
+    <div class="footer-col">
+      <h4>LEGAL</h4>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Cookie Policy</a>
+      <a href="#">Copyright</a>
+      <a href="#">Community Guidelines</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2025 MR Tube Media Pvt. Ltd. · Made with ❤️ in India</div>
+    <div class="footer-langs">
+      <span onclick="filterLang('hi')">हिंदी</span>
+      <span onclick="filterLang('ta')">தமிழ்</span>
+      <span onclick="filterLang('te')">తెలుగు</span>
+      <span onclick="filterLang('bn')">বাংলা</span>
+      <span onclick="filterLang('mr')">मराठी</span>
+      <span onclick="filterLang('kn')">ಕನ್ನಡ</span>
+      <span onclick="filterLang('ml')">മലയാളം</span>
+      <span onclick="filterLang('gu')">ગુજરાતી</span>
+      <span onclick="filterLang('pa')">ਪੰਜਾਬੀ</span>
+      <span onclick="filterLang('bho')">भोजपुरी</span>
+      <span onclick="filterLang('ne')">नेपाली</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ── VIDEO PLAYER MODAL ── -->
+<div class="modal-overlay" id="playerModal" onclick="closePlayer()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:16px;font-weight:800" id="modal-title">Video Title</div>
+        <div style="font-size:12px;color:var(--muted)" id="modal-meta">Channel · Views</div>
+      </div>
+      <button onclick="closePlayer()" style="background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer">✕</button>
+    </div>
+    <div class="modal-player" id="modal-player">
+      <div style="font-size:72px" id="modal-emoji">🎬</div>
+      <div style="font-size:14px;color:var(--muted)" id="modal-status">Press ▶ to play</div>
+    </div>
+    <div style="padding:16px 24px">
+      <div style="height:5px;background:var(--card2);border-radius:3px;margin-bottom:10px;cursor:pointer" onclick="seekModal(event)">
+        <div style="height:100%;background:var(--gradFull);border-radius:3px;transition:width 0.3s" id="modal-bar" style="width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:16px;align-items:center">
+        <button class="mp-btn" onclick="seekModalBy(-10)">⏪</button>
+        <button class="mp-btn mp-play" onclick="toggleModalPlay()" id="modal-playbtn">▶</button>
+        <button class="mp-btn" onclick="seekModalBy(10)">⏩</button>
+        <span style="font-size:11px;color:var(--muted);margin-left:8px" id="modal-dur">0:00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PAGE NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  const pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+  // Update sidebar active
+  document.querySelectorAll('.sidebar-item').forEach(item => {
+    if (item.textContent.toLowerCase().includes(id.toLowerCase())) item.classList.add('active');
+  });
+  document.getElementById('main').scrollTo(0, 0);
+  window.scrollTo(0, 0);
+  // Close sidebar on mobile
+  if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ── SEARCH ──
+function doSearch() {
+  const q = document.getElementById('searchInput').value;
+  if (q.trim()) { showPage('videos'); alert('Searching for: "' + q + '"'); }
+}
+
+// ── LANGUAGE ──
+function changeLang(code) {
+  const labels = {
+    en:"English",hi:"Hindi",ta:"Tamil",te:"Telugu",mr:"Marathi",
+    bn:"Bengali",gu:"Gujarati",kn:"Kannada",ml:"Malayalam",pa:"Punjabi",bho:"Bhojpuri",ne:"Nepali"
+  };
+  console.log('Language changed to:', labels[code] || code);
+}
+
+function filterLang(code) {
+  const labels = { hi:"Hindi",ta:"Tamil",te:"Telugu",bn:"Bengali",mr:"Marathi",kn:"Kannada",ml:"Malayalam",gu:"Gujarati",pa:"Punjabi",or:"Odia",as:"Assamese",ur:"Urdu",bho:"Bhojpuri",ne:"Nepali" };
+  showPage('videos');
+  alert('Showing ' + (labels[code] || code) + ' content');
+}
+
+// ── AUTH TABS ──
+function switchAuth(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='signin')||(i===1&&tab==='signup')));
+  document.getElementById('auth-signin').classList.toggle('active', tab === 'signin');
+  document.getElementById('auth-signup').classList.toggle('active', tab === 'signup');
+}
+
+// ── CHIP CLICK ──
+document.querySelectorAll('.chips').forEach(row => {
+  row.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+});
+
+// ── VIDEO PLAYER MODAL ──
+let modalPlaying = false, modalProgress = 0, modalTimer = null;
+
+function openPlayer(title, emoji, duration, channel, views) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-meta').textContent = channel + ' · ' + views + ' views';
+  document.getElementById('modal-emoji').textContent = emoji;
+  document.getElementById('modal-dur').textContent = duration;
+  document.getElementById('modal-bar').style.width = '0%';
+  document.getElementById('modal-playbtn').textContent = '▶';
+  document.getElementById('modal-status').textContent = 'Press ▶ to play';
+  modalPlaying = false; modalProgress = 0;
+  clearInterval(modalTimer);
+  document.getElementById('playerModal').classList.add('open');
+}
+
+function closePlayer() {
+  clearInterval(modalTimer);
+  modalPlaying = false;
+  document.getElementById('playerModal').classList.remove('open');
+}
+
+function toggleModalPlay() {
+  modalPlaying = !modalPlaying;
+  document.getElementById('modal-playbtn').textContent = modalPlaying ? '⏸' : '▶';
+  document.getElementById('modal-status').textContent = modalPlaying ? '▶ Now Playing…' : 'Paused';
+  clearInterval(modalTimer);
+  if (modalPlaying) {
+    modalTimer = setInterval(() => {
+      modalProgress = Math.min(modalProgress + 0.4, 100);
+      document.getElementById('modal-bar').style.width = modalProgress + '%';
+      if (modalProgress >= 100) { clearInterval(modalTimer); modalPlaying = false; document.getElementById('modal-playbtn').textContent = '▶'; }
+    }, 200);
+  }
+}
+
+function seekModalBy(sec) {
+  modalProgress = Math.max(0, Math.min(100, modalProgress + sec * 1.2));
+  document.getElementById('modal-bar').style.width = modalProgress + '%';
+}
+
+function seekModal(e) {
+  const r = e.currentTarget.getBoundingClientRect();
+  modalProgress = ((e.clientX - r.left) / r.width) * 100;
+  document.getElementById('modal-bar').style.width = modalProgress + '%';
+}
+
+// ── MUSIC PLAYER ──
+const TRACKS = [
+  { title:"Kesariya – Brahmastra", artist:"Arijit Singh · Hindi", emoji:"🎵", dur:"4:28" },
+  { title:"Tum Hi Ho – Aashiqui 2", artist:"Arijit Singh · Hindi", emoji:"🎶", dur:"4:45" },
+  { title:"Rowdy Baby – Maari 2",   artist:"Sai Pallavi · Tamil",   emoji:"💃", dur:"3:56" },
+  { title:"Sooseki – Pushpa 2",     artist:"Devi Sri Prasad · Telugu",emoji:"🎸",dur:"3:52" },
+  { title:"Garba Medley 2025",      artist:"Falguni Pathak · Gujarati",emoji:"🥁",dur:"5:12" },
+  { title:"Carnatic Evening Raga",  artist:"L. Subramaniam · Kannada",emoji:"🎻",dur:"8:30" },
+  { title:"Dhol Baaje – Punjab",    artist:"Diljit Dosanjh · Punjabi",emoji:"🪘",dur:"4:10" },
+  { title:"Lollipop Lagelu – Bhojpuri", artist:"Pawan Singh · Bhojpuri",  emoji:"🎺",dur:"4:12" },
+  { title:"Resham Firiri",              artist:"Nepali Folk · Nepali",    emoji:"🏔️",dur:"5:20" },
+];
+let curTrack = 0, mpPlaying = false, mpProg = 35, mpTimer = null;
+
+function playTrack(idx) {
+  curTrack = idx;
+  const t = TRACKS[idx];
+  document.getElementById('mp-title').textContent = t.title;
+  document.getElementById('mp-artist').textContent = t.artist;
+  document.getElementById('mp-tot').textContent = t.dur;
+  document.querySelectorAll('.track-item').forEach((el,i) => {
+    el.classList.toggle('active', i === idx);
+    const anim = el.querySelector('.playing-anim');
+    if (anim) anim.remove();
+    if (i === idx) { const s=document.createElement('div'); s.className='playing-anim'; s.textContent='♪'; el.appendChild(s); }
+  });
+  mpPlaying = true; document.getElementById('mp-playbtn').textContent = '⏸';
+  startMpTimer();
+}
+
+function togglePlay() {
+  mpPlaying = !mpPlaying;
+  document.getElementById('mp-playbtn').textContent = mpPlaying ? '⏸' : '▶';
+  if (mpPlaying) startMpTimer(); else clearInterval(mpTimer);
+}
+
+function startMpTimer() {
+  clearInterval(mpTimer);
+  mpTimer = setInterval(() => {
+    mpProg = Math.min(mpProg + 0.3, 100);
+    document.getElementById('mp-bar').style.width = mpProg + '%';
+    if (mpProg >= 100) nextTrack();
+  }, 200);
+}
+
+function nextTrack() { playTrack((curTrack + 1) % TRACKS.length); mpProg = 0; }
+function prevTrack() { playTrack((curTrack - 1 + TRACKS.length) % TRACKS.length); mpProg = 0; }
+
+function seekMusic(e) {
+  const r = e.currentTarget.getBoundingClientRect();
+  mpProg = ((e.clientX - r.left) / r.width) * 100;
+  document.getElementById('mp-bar').style.width = mpProg + '%';
+}
+
+// ── FILE UPLOAD ──
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) { document.getElementById('uploadZone').innerHTML = '<div style="font-size:36px;margin-bottom:12px">' + (file.type.startsWith('audio') ? '🎵' : '🎬') + '</div><div style="font-size:16px;font-weight:700">' + file.name + '</div><div style="font-size:12px;color:var(--muted);margin-top:4px">' + (file.size/1024/1024).toFixed(1) + ' MB · Click to change</div>'; }
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) { const ev={target:{files:[file]}}; handleFileSelect(ev); }
+}
+</script>
+</body>
+</html>
